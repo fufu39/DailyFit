@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react'
-import { Route, Navigate, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 import { Center, Loader, Title } from '@mantine/core'
 
@@ -12,6 +12,7 @@ const HomePage = lazy(() => import('../pages/Home/HomePage'))
 const LogbookPage = lazy(() => import('../pages/Logbook/LogbookPage'))
 const LogbookDetailPage = lazy(() => import('../pages/Logbook/LogbookDetailPage'))
 const ProfilePage = lazy(() => import('../pages/Profile/ProfilePage'))
+const NotFoundPage = lazy(() => import('../pages/NotFound/NotFoundPage'))
 
 // 定义路由元数据接口（拓展：是否登录，是否使用主布局包裹）
 type CustomRouteObject = RouteObject & {
@@ -38,19 +39,14 @@ const ElementWrapper: React.FC<{
   hasLayout?: boolean
 }> = ({ element, requiresAuth = false, hasLayout = true }) => {
   let wrappedElement = element
-
-  // 守卫逻辑：在外部包裹 AuthGuard
+  // 守卫逻辑：负责检查登录状态，未登录则重定向到/login
   if (requiresAuth) {
-    // AuthGuard 负责检查登录状态，未登录则重定向到 /login
     wrappedElement = <AuthGuard>{wrappedElement}</AuthGuard>
   }
-
-  // 布局逻辑：仅当 hasLayout 为 true 时，才包裹 MainLayout
+  // 布局逻辑：MainLayout包含Header, Sidebar等结构
   if (hasLayout) {
-    // MainLayout 包含 Header, Sidebar 等应用壳
     wrappedElement = <MainLayout>{wrappedElement}</MainLayout>
   }
-
   // 使用Suspense包裹，处理切换路由时的加载状态
   return <Suspense fallback={<RouterFallback />}>{wrappedElement}</Suspense>
 }
@@ -66,14 +62,7 @@ export const routesConfig: CustomRouteObject[] = [
   { path: '/logbook/:id', element: <LogbookDetailPage />, requiresAuth: true, hasLayout: true },
   { path: '/profile', element: <ProfilePage />, requiresAuth: true, hasLayout: true },
   // 404路由
-  {
-    path: '*',
-    hasLayout: false, // 404页不需要全局布局
-    element: (
-      // 使用 Navigate 代替手动跳转，确保 404 页直接重定向到首页
-      <Navigate to="/" replace />
-    ),
-  },
+  { path: '*', hasLayout: false, element: <NotFoundPage /> },
 ]
 
 const AppRouter: React.FC = () => {
