@@ -1,12 +1,12 @@
 // eslint.config.js
-import pluginJs from '@eslint/js';
-import globals from 'globals';
-import tseslint from 'typescript-eslint'; // Typescript相关的导入
-import pluginReact from 'eslint-plugin-react'; // React相关的导入
-import pluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginJs from '@eslint/js'
+import globals from 'globals'
+import tseslint from 'typescript-eslint' // Typescript相关的导入
+import pluginReact from 'eslint-plugin-react' // React相关的导入
+import pluginReactHooks from 'eslint-plugin-react-hooks'
 // Prettier相关的导入
-import pluginPrettier from 'eslint-plugin-prettier';
-import configPrettier from 'eslint-config-prettier';
+import pluginPrettier from 'eslint-plugin-prettier'
+import configPrettier from 'eslint-config-prettier'
 
 export default [
   // 基础JS规则
@@ -27,12 +27,12 @@ export default [
         ...globals.browser,
         ...globals.node,
         // 允许全局使用 React Query 的全局变量
-        __DEV__: 'readonly', 
+        __DEV__: 'readonly',
       },
     },
     settings: {
       // 自动检测 React 版本
-      react: { version: 'detect' }, 
+      react: { version: 'detect' },
     },
   },
 
@@ -48,7 +48,7 @@ export default [
       ...pluginReact.configs.recommended.rules,
       // React Hooks规则，强制遵守Hook依赖和调用顺序
       ...pluginReactHooks.configs.recommended.rules,
-      
+
       // 优化/自定义规则
       'react/react-in-jsx-scope': 'off', // React 17+新特性，不需要导入React
       'react/prop-types': 'off', // 使用TypeScript/Interface代替 prop-types
@@ -70,9 +70,9 @@ export default [
   // 忽略文件
   {
     ignores: [
-      'dist/**', 
-      'node_modules/**', 
+      'dist/**',
+      'node_modules/**',
       'vite.config.ts', // 通常不对配置脚本执行严格的业务代码检查
     ],
   },
-];
+]
