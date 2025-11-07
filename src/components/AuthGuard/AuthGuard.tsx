@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
-import request from '../../utils/request'
+import request from '../../utils/request.tsx'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -22,27 +22,26 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         navigate('/login')
         return
       }
-
       // 如果正在验证中，跳过重复请求
       if (isVerifyingRef.current) {
         return
       }
-
       // 如果 token 没有变化，跳过验证（避免不必要的请求）
       if (lastTokenRef.current === token) {
         return
       }
 
-      // 验证 token 是否有效
+      // 验证token是否有效
       try {
         isVerifyingRef.current = true
         lastTokenRef.current = token
         const response = await request.get('/auth/verify', {
-          // 禁用缓存，确保每次都是新请求
+          // 禁用缓存，确保每次请求都是新的
           headers: {
             'Cache-Control': 'no-cache',
           },
         })
+        console.log('/auth/verify结果：', response.data)
         if (!response.data.success) {
           lastTokenRef.current = null
           logout()

@@ -3,7 +3,15 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { AppShell, Burger, Group, Text, NavLink, Avatar, Menu, UnstyledButton, Stack, Box } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 // 导入Tabler Icons
-import { IconHome, IconDashboard, IconCalendarWeek, IconUser, IconLogout, IconChevronDown } from '@tabler/icons-react'
+import {
+  IconHome,
+  IconDashboard,
+  IconCalendarWeek,
+  IconUser,
+  IconLogout,
+  IconChevronDown,
+  IconCheck,
+} from '@tabler/icons-react'
 import logo from '../../assets/logo.png'
 import styles from './MainLayout.module.css'
 import { useAuthStore } from '../../stores/authStore'
@@ -49,9 +57,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const handleLogout = () => {
     logout()
     notifications.show({
-      title: '已退出登录',
-      message: '您已成功退出登录',
-      color: 'blue',
+      title: '退登成功',
+      message: '欢迎下次再来~',
+      icon: <IconCheck size={20} />,
+      color: 'teal',
     })
     navigate('/login')
   }

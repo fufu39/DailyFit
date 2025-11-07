@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Container, Paper, TextInput, PasswordInput, Button, Title, Text, Stack, Alert } from '@mantine/core'
-import { IconAlertCircle } from '@tabler/icons-react'
-import request from '../../utils/request'
+import { IconAlertCircle, IconCheck } from '@tabler/icons-react'
+import request from '../../utils/request.tsx'
 import { useAuthStore } from '../../stores/authStore'
 import { notifications } from '@mantine/notifications'
 
@@ -27,6 +27,7 @@ export default function LoginPage() {
         username,
         password,
       })
+      console.log('/login结果：', response.data)
 
       if (response.data.success) {
         const { user, token } = response.data.data
@@ -34,8 +35,9 @@ export default function LoginPage() {
 
         notifications.show({
           title: '登录成功',
-          message: `欢迎回来，${user.name}！`,
-          color: 'green',
+          message: `欢迎回来，${user.name}~`,
+          icon: <IconCheck size={20} />,
+          color: 'teal',
         })
 
         navigate('/dashboard')

@@ -11,7 +11,7 @@ const App: React.FC = () => {
         {/* ModalsProvider：管理全局模态框 */}
         <ModalsProvider>
           {/* Notifications：全局通知中心 */}
-          <Notifications position="top-right" zIndex={9000} autoClose={3000} />
+          <Notifications position="top-right" zIndex={9000} autoClose={5000} />
           <AppRouter />
         </ModalsProvider>
       </BrowserRouter>

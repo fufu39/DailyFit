@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/authStore'
 import { notifications } from '@mantine/notifications'
+import { IconX, IconExclamationMark } from '@tabler/icons-react'
 
 // API基础URL配置
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
@@ -54,6 +55,7 @@ axiosInstance.interceptors.response.use(
       notifications.show({
         title: '请求失败',
         message: errorMessage,
+        icon: <IconX size={20} />,
         color: 'red',
       })
       return Promise.reject(new Error(errorMessage))
@@ -74,8 +76,9 @@ axiosInstance.interceptors.response.use(
           authStore.logout()
 
           notifications.show({
-            title: '登录已过期',
-            message: '请重新登录',
+            title: '登录失败',
+            message: data?.message || '请重新登录',
+            icon: <IconExclamationMark size={20} />,
             color: 'yellow',
           })
           break
@@ -86,6 +89,7 @@ axiosInstance.interceptors.response.use(
           notifications.show({
             title: '权限不足',
             message: data?.message || '您没有权限访问该资源',
+            icon: <IconX size={20} />,
             color: 'red',
           })
           break
@@ -96,6 +100,7 @@ axiosInstance.interceptors.response.use(
           notifications.show({
             title: '未找到资源',
             message: data?.message || '请求的资源不存在',
+            icon: <IconX size={20} />,
             color: 'red',
           })
           break
@@ -106,6 +111,7 @@ axiosInstance.interceptors.response.use(
           notifications.show({
             title: '服务器错误',
             message: data?.message || '服务器内部错误，请稍后重试',
+            icon: <IconX size={20} />,
             color: 'red',
           })
           break
@@ -117,6 +123,7 @@ axiosInstance.interceptors.response.use(
           notifications.show({
             title: '请求失败',
             message: errorMessage,
+            icon: <IconX size={20} />,
             color: 'red',
           })
         }
@@ -130,6 +137,7 @@ axiosInstance.interceptors.response.use(
       notifications.show({
         title: '网络错误',
         message: '网络连接异常，请检查您的网络',
+        icon: <IconX size={20} />,
         color: 'red',
       })
       return Promise.reject(new Error('网络连接异常'))
@@ -139,6 +147,7 @@ axiosInstance.interceptors.response.use(
     notifications.show({
       title: '请求错误',
       message: message || '请求失败，请稍后重试',
+      icon: <IconX size={20} />,
       color: 'red',
     })
     return Promise.reject(error)

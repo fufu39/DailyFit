@@ -135,7 +135,7 @@ export const verifyToken = async (req, res) => {
     if (!authHeader) {
       return res.status(401).json({
         success: false,
-        message: '未提供 token',
+        message: '未提供token',
       })
     }
 
@@ -144,7 +144,7 @@ export const verifyToken = async (req, res) => {
     if (!token || token.trim() === '') {
       return res.status(401).json({
         success: false,
-        message: '未提供 token',
+        message: '未提供token',
       })
     }
 
@@ -153,7 +153,7 @@ export const verifyToken = async (req, res) => {
     if (tokenParts.length !== 3 || tokenParts[0] !== 'token') {
       return res.status(401).json({
         success: false,
-        message: '无效的 token 格式',
+        message: '无效的token格式',
       })
     }
 
@@ -161,7 +161,7 @@ export const verifyToken = async (req, res) => {
     if (isNaN(userId) || userId <= 0) {
       return res.status(401).json({
         success: false,
-        message: '无效的 token',
+        message: '无效的token',
       })
     }
 
@@ -185,7 +185,7 @@ export const verifyToken = async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('验证 token 错误:', error)
+    console.error('验证token错误:', error)
     res.status(500).json({
       success: false,
       message: '服务器内部错误',
