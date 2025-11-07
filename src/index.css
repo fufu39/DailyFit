@@ -34,10 +34,6 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  color: red;
-}
-
 button,
 input {
   /* "\5B8B\4F53" 就是宋体*/

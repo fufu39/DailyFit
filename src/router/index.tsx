@@ -73,7 +73,6 @@ const AppRouter: React.FC = () => {
         <Route
           key={route.path}
           path={route.path}
-          // 传递所有需要的属性给 ElementWrapper，ElementWrapper 负责守卫和布局
           element={
             <ElementWrapper element={route.element} requiresAuth={route.requiresAuth} hasLayout={route.hasLayout} />
           }

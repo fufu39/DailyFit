@@ -1,0 +1,163 @@
+.appShell {
+  min-height: 100vh;
+}
+
+.header {
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+  background: var(--mantine-color-white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  height: 75px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* 品牌文字 - 每个文字都有独立的流光效果 */
+.brandText {
+  font-size: 23px;
+  background: linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-cyan-6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* 流光效果 - 使用伪元素创建高光条，从左到右扫过 */
+.brandText::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 40%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.6) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 3;
+  transform: skewX(-15deg);
+  transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+  mix-blend-mode: screen;
+}
+
+.brandText:hover::after {
+  left: 100%;
+}
+
+.navbar {
+  background: var(--mantine-color-white);
+  /* border-right: 1px solid var(--mantine-color-gray-3); */
+}
+
+.navLink {
+  border-radius: var(--mantine-radius-md);
+  transition: all 0.2s ease;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  min-height: 48px;
+}
+
+/* 针对 NavLink 内部的文本元素设置字体大小 */
+
+.navLink:hover {
+  background-color: var(--mantine-color-gray-2);
+  transform: translateX(2px);
+}
+
+.navLink[data-active='true'] {
+  background-color: var(--mantine-color-blue-0);
+  color: var(--mantine-color-blue-7);
+  font-weight: 600;
+}
+
+.navLink[data-active='true']:hover {
+  background-color: var(--mantine-color-blue-1);
+}
+
+.userButton {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-md);
+  transition: background-color 0.2s ease;
+}
+
+.userButton:hover {
+  background-color: var(--mantine-color-gray-1);
+}
+
+.main {
+  background: var(--mantine-color-gray-1);
+  min-height: calc(100vh);
+}
+
+.content {
+  background: var(--mantine-color-white);
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-lg);
+  min-height: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.burger {
+  transition: all 0.4s ease;
+}
+
+/* 小屏幕（< 768px）始终显示 Burger */
+@media (max-width: 767px) {
+  .burger {
+    opacity: 1 !important;
+    width: auto !important;
+    margin-right: var(--mantine-spacing-sm) !important;
+  }
+}
+
+/* 大屏幕（>= 768px）：默认不占据位置，悬停 header 时显示并顶开右边 */
+@media (min-width: 768px) {
+  .burgerDesktop {
+    width: 0;
+    min-width: 0;
+    margin: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: all 0.5s ease;
+  }
+
+  .header:hover .burgerDesktop {
+    min-width: 34px;
+    margin-left: var(--mantine-spacing-sm);
+    margin-right: 0;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 767px) {
+  .content {
+    padding: var(--mantine-spacing-md);
+    border-radius: 0;
+  }
+
+  /* sm 屏幕（移动端）下，侧边栏展开时只占据 60% 宽度 */
+  .navbar {
+    width: 60%;
+    max-width: 60vw;
+  }
+
+  /* 小屏幕下隐藏"健身数据统计平台"文本 */
+  .brandSubText {
+    display: none;
+  }
+}
