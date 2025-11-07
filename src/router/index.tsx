@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 import { Center, Loader, Title } from '@mantine/core'
 
@@ -54,7 +54,8 @@ const ElementWrapper: React.FC<{
 // 核心路由配置数组
 export const routesConfig: CustomRouteObject[] = [
   // 公开路由
-  { path: '/', element: <HomePage />, hasLayout: true },
+  { path: '/', element: <Navigate to="/home" replace />, hasLayout: false },
+  { path: '/home', element: <HomePage />, hasLayout: true },
   { path: '/login', element: <LoginPage />, hasLayout: false },
   // 私有路由
   { path: '/dashboard', element: <DashboardPage />, requiresAuth: true, hasLayout: true },

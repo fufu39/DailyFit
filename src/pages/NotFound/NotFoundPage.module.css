@@ -1,43 +1,105 @@
 .root {
-  padding-top: 80px;
-  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  background-color: var(--mantine-color-white);
+  overflow: hidden;
+  margin: 0 !important;
 }
 
 .inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 设置相对定位 */
   position: relative;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
 }
 
+/* 背景404插图样式 */
 .image {
   position: absolute;
-  inset: 0;
-  opacity: 0.75;
-  color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -75%);
+  width: 85vw;
+  max-width: 1200px;
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  color: #e1e1e1;
+  /* 添加渐变蒙版 */
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.1));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.1));
 }
 
+/* 前景内容容器（文字和按钮） */
 .content {
-  padding-top: 220px;
   position: relative;
   z-index: 1;
-
-  @media (max-width: var(--mantine-breakpoint-sm)) {
-    padding-top: 120px;
-  }
+  width: 85vw;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5vh;
 }
 
+/* 标题样式 */
 .title {
-  font-family: Outfit, var(--mantine-font-family);
-  text-align: center;
-  font-weight: 500;
-  font-size: 38px;
-
-  @media (max-width: var(--mantine-breakpoint-sm)) {
-    font-size: 32px;
-  }
+  font-size: 95px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-top: 100px;
+  margin-bottom: 60px;
+  color: var(--mantine-color-black);
+  font-family: Microsoft YaHei, Heiti SC, sans-serif;
 }
 
-.description {
-  max-width: 540px;
-  margin: auto;
-  margin-top: var(--mantine-spacing-xl);
-  margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
+/* 媒体查询 - 移动端响应式 */
+@media (max-width: 768px) {
+  .root {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    min-height: 80vh;
+  }
+
+  .inner {
+    flex-direction: column;
+    padding: 0 8px;
+    min-width: 0;
+  }
+
+  .content {
+    margin-top: 24px;
+    padding: 0 8px;
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  .title {
+    font-size: 42px;
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
+
+  .image {
+    width: 95vw;
+    max-width: 95vw;
+    min-width: 0;
+    left: 50%;
+    transform: translate(-50%, -60%);
+  }
+
+  .button {
+    font-size: 14px;
+  }
 }
