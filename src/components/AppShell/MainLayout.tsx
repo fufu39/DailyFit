@@ -3,9 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { AppShell, Burger, Group, Text, NavLink, Avatar, Menu, UnstyledButton, Stack, Box } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 // 导入Tabler Icons
-import { IconHome, IconDashboard, IconBook, IconUser, IconLogout, IconChevronDown } from '@tabler/icons-react'
+import { IconHome, IconDashboard, IconCalendarWeek, IconUser, IconLogout, IconChevronDown } from '@tabler/icons-react'
 import logo from '../../assets/logo.png'
 import styles from './MainLayout.module.css'
+import { useAuthStore } from '../../stores/authStore'
+import { notifications } from '@mantine/notifications'
 
 // 定义组件 Props 的类型
 interface MainLayoutProps {
@@ -24,7 +26,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: '首页', path: '/home', icon: IconHome },
   { label: '仪表盘', path: '/dashboard', icon: IconDashboard, requiresAuth: true },
-  { label: '训练日志', path: '/logbook', icon: IconBook, requiresAuth: true },
+  { label: '训练日志', path: '/logbook', icon: IconCalendarWeek, requiresAuth: true },
   { label: '个人资料', path: '/profile', icon: IconUser, requiresAuth: true },
 ]
 
@@ -41,17 +43,23 @@ export default function MainLayout({ children }: MainLayoutProps) {
     navigate(path)
   }
 
+  const { user, logout } = useAuthStore()
+
   // 登出处理函数
   const handleLogout = () => {
-    // TODO: 实现登出逻辑 (例如清除 token, 调用 API 退出)
+    logout()
+    notifications.show({
+      title: '已退出登录',
+      message: '您已成功退出登录',
+      color: 'blue',
+    })
     navigate('/login')
   }
 
-  // 模拟用户信息
-  const user = {
-    name: '用户',
-    email: 'user@example.com',
-    avatar: null, // 如果没有头像URL，Mantine 会显示首字母
+  // 如果没有用户信息，显示默认值
+  const displayUser = user || {
+    name: '用户信息不存在',
+    email: '用户邮箱不存在',
   }
 
   return (
@@ -96,18 +104,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <Menu.Target>
                 {/* 用户信息按钮：点击触发菜单 */}
                 <UnstyledButton className={styles.userButton}>
-                  <Group gap="sm">
+                  <Group gap="md">
                     {/* 用户头像 */}
-                    <Avatar size={32} radius="xl" color="blue">
-                      {user.name.charAt(0).toUpperCase()}
+                    <Avatar variant="light" size={42} radius="xl" color="blue">
+                      {displayUser.name.charAt(0).toUpperCase()}
                     </Avatar>
                     {/* 用户名和邮箱：仅在大屏幕 (>='sm') 显示 */}
                     <Box style={{ flex: 1 }} visibleFrom="sm">
                       <Text size="sm" fw={500}>
-                        {user.name}
+                        {displayUser.name}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {user.email}
+                        {displayUser.email}
                       </Text>
                     </Box>
                     {/* 下拉箭头图标 */}

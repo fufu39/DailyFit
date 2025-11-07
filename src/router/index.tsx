@@ -24,10 +24,37 @@ type CustomRouteObject = RouteObject & {
 
 // 定义全局通用的加载骨架（用于Suspense）
 const RouterFallback: React.FC = () => (
-  <Center style={{ height: '100vh', flexDirection: 'column' }}>
-    <Loader size="xl" />
-    <Title order={3} mt="md">
+  <Center
+    style={{
+      minHeight: '100vh',
+      flexDirection: 'column',
+    }}
+  >
+    <Loader size="xl" color="blue" variant="bars" />
+    <Title
+      order={2}
+      mt="lg"
+      fw={600}
+      style={{
+        color: 'var(--mantine-color-blue-8, #1864ab)',
+        letterSpacing: 1,
+        textShadow: '0 2px 8px rgba(24, 100, 171, 0.06)',
+      }}
+    >
       页面加载中...
+    </Title>
+    <Title
+      order={5}
+      mt={8}
+      fw={400}
+      c="dimmed"
+      style={{
+        fontSize: 18,
+        fontWeight: 400,
+        marginTop: 0,
+      }}
+    >
+      Please wait for a moment
     </Title>
   </Center>
 )
