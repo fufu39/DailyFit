@@ -59,7 +59,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   // 如果没有用户信息，显示默认值
   const displayUser = user || {
     name: '用户信息不存在',
-    email: '用户邮箱不存在',
+    email: 'User not found',
   }
 
   return (
@@ -81,7 +81,12 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <Burger opened={opened} onClick={toggle} size="md" className={`${styles.burger} ${styles.burgerDesktop}`} />
 
             {/* Logo 和品牌名称：点击可回到首页 */}
-            <Group gap="md" style={{ cursor: 'pointer' }} onClick={() => handleNavClick('/home')}>
+            <Group
+              gap="md"
+              style={{ cursor: 'pointer' }}
+              className={styles.brandGroup}
+              onClick={() => handleNavClick('/home')}
+            >
               <img src={logo} alt="DailyFit Logo" className={styles.logo} />
               <Text fw={700} size="lg" className={styles.brandText}>
                 DailyFit
@@ -106,8 +111,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 <UnstyledButton className={styles.userButton}>
                   <Group gap="md">
                     {/* 用户头像 */}
-                    <Avatar variant="light" size={42} radius="xl" color="blue">
-                      {displayUser.name.charAt(0).toUpperCase()}
+                    <Avatar variant={'light'} size={42} radius="xl" color={user ? 'blue' : undefined}>
+                      {user ? displayUser.name.charAt(0).toUpperCase() : null}
                     </Avatar>
                     {/* 用户名和邮箱：仅在大屏幕 (>='sm') 显示 */}
                     <Box style={{ flex: 1 }} visibleFrom="sm">

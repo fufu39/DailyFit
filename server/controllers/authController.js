@@ -1,51 +1,50 @@
-import fs from 'fs'
+// 业务逻辑控制器
+// 负责处理具体请求逻辑，即从路由接收请求→操作数据（如读写JSON文件或数据库）→返回响应数据
+import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __dirname = path.dirname(__filename) // 获取当前文件所在目录的路径
 
 // 用户数据文件路径
 const usersFilePath = path.join(__dirname, '..', 'data', 'users.json')
 
 // 确保 data 目录存在
 const dataDir = path.join(__dirname, '..', 'data')
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true })
-}
 
-// 初始化用户数据文件（如果不存在）
-const initializeUsersFile = () => {
-  if (!fs.existsSync(usersFilePath)) {
+const initializeUsersFile = async () => {
+  try {
+    await fs.access(dataDir)
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true })
+  }
+
+  try {
+    await fs.access(usersFilePath)
+  } catch {
     const defaultUsers = [
       {
         id: 1,
         username: 'admin',
-        password: 'admin123', // 实际应用中应该使用加密密码
+        password: '1',
         email: 'admin@example.com',
         name: '管理员',
       },
-      {
-        id: 2,
-        username: 'user',
-        password: 'user123',
-        email: 'user@example.com',
-        name: '用户',
-      },
     ]
-    fs.writeFileSync(usersFilePath, JSON.stringify(defaultUsers, null, 2), 'utf8')
+    await fs.writeFile(usersFilePath, JSON.stringify(defaultUsers, null, 2), 'utf8')
   }
 }
 
 // 初始化用户数据文件
-initializeUsersFile()
+initializeUsersFile().catch((error) => {
+  console.error('初始化用户数据文件失败:', error)
+})
 
-/**
- * 读取用户数据
- */
-export const readUsers = () => {
+// 读取用户数据（异步）
+export const readUsers = async () => {
   try {
-    const data = fs.readFileSync(usersFilePath, 'utf8')
+    const data = await fs.readFile(usersFilePath, 'utf8')
     return JSON.parse(data)
   } catch (error) {
     console.error('读取用户数据失败:', error)
@@ -53,85 +52,143 @@ export const readUsers = () => {
   }
 }
 
-/**
- * 登录控制器
- */
-export const login = (req, res) => {
-  const { username, password } = req.body
+// 输入验证和清理
+const validateInput = (username, password) => {
+  // 去除首尾空格
+  const cleanUsername = typeof username === 'string' ? username.trim() : ''
+  const cleanPassword = typeof password === 'string' ? password.trim() : ''
 
-  // 验证输入
-  if (!username || !password) {
-    return res.status(400).json({
-      success: false,
-      message: '用户名和密码不能为空',
-    })
+  // 基本验证
+  if (!cleanUsername || !cleanPassword) {
+    return { valid: false, error: '用户名和密码不能为空' }
   }
 
-  // 读取用户数据
-  const users = readUsers()
-
-  // 查找用户
-  const user = users.find((u) => u.username === username && u.password === password)
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: '用户名或密码错误',
-    })
+  // 长度验证
+  if (cleanUsername.length < 3 || cleanUsername.length > 20) {
+    return { valid: false, error: '用户名长度必须在3-20个字符之间' }
   }
 
-  // 登录成功，返回用户信息（不包含密码）
-  const { password: _, ...userWithoutPassword } = user
+  if (cleanPassword.length < 1 || cleanPassword.length > 100) {
+    return { valid: false, error: '密码长度必须在1-100个字符之间' }
+  }
 
-  res.json({
-    success: true,
-    message: '登录成功',
-    data: {
-      user: userWithoutPassword,
-      token: `token_${user.id}_${Date.now()}`, // 简单的 token 生成（实际应用中应使用 JWT）
-    },
-  })
+  // 用户名格式验证（只允许字母、数字、下划线）
+  if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
+    return { valid: false, error: '用户名只能包含字母、数字和下划线' }
+  }
+
+  return { valid: true, username: cleanUsername, password: cleanPassword }
 }
 
-/**
- * 验证 token 控制器
- */
-export const verifyToken = (req, res) => {
-  const token = req.headers.authorization?.replace('Bearer ', '')
+// 登录控制器
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body
 
-  if (!token) {
-    return res.status(401).json({
+    // 输入验证
+    const validation = validateInput(username, password)
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: validation.error,
+      })
+    }
+
+    // 读取用户数据
+    const users = await readUsers()
+
+    // 查找用户
+    const user = users.find((u) => u.username === validation.username && u.password === validation.password)
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: '用户名或密码错误',
+      })
+    }
+
+    // 登录成功，返回用户信息（不包含密码）
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    const { password: _, ...userWithoutPassword } = user
+
+    res.json({
+      success: true,
+      message: '登录成功',
+      data: {
+        user: userWithoutPassword,
+        token: `token_${user.id}_${Date.now()}`, // 简单的 token 生成（实际应用中应使用 JWT）
+      },
+    })
+  } catch (error) {
+    console.error('登录错误:', error)
+    res.status(500).json({
       success: false,
-      message: '未提供 token',
+      message: '服务器内部错误',
     })
   }
+}
 
-  // 简单的 token 验证（实际应用中应使用 JWT）
-  const tokenParts = token.split('_')
-  if (tokenParts.length !== 3) {
-    return res.status(401).json({
+// 验证token控制器
+export const verifyToken = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: '未提供 token',
+      })
+    }
+
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
+
+    if (!token || token.trim() === '') {
+      return res.status(401).json({
+        success: false,
+        message: '未提供 token',
+      })
+    }
+
+    // 简单的token验证（实际应用中应使用JWT）
+    const tokenParts = token.split('_')
+    if (tokenParts.length !== 3 || tokenParts[0] !== 'token') {
+      return res.status(401).json({
+        success: false,
+        message: '无效的 token 格式',
+      })
+    }
+
+    const userId = parseInt(tokenParts[1], 10)
+    if (isNaN(userId) || userId <= 0) {
+      return res.status(401).json({
+        success: false,
+        message: '无效的 token',
+      })
+    }
+
+    const users = await readUsers()
+    const user = users.find((u) => u.id === userId)
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: '用户不存在',
+      })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    const { password: _, ...userWithoutPassword } = user
+
+    res.json({
+      success: true,
+      data: {
+        user: userWithoutPassword,
+      },
+    })
+  } catch (error) {
+    console.error('验证 token 错误:', error)
+    res.status(500).json({
       success: false,
-      message: '无效的 token',
+      message: '服务器内部错误',
     })
   }
-
-  const userId = parseInt(tokenParts[1])
-  const users = readUsers()
-  const user = users.find((u) => u.id === userId)
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: '用户不存在',
-    })
-  }
-
-  const { password: _, ...userWithoutPassword } = user
-
-  res.json({
-    success: true,
-    data: {
-      user: userWithoutPassword,
-    },
-  })
 }

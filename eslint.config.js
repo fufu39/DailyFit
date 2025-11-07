@@ -67,6 +67,31 @@ export default [
     },
   },
 
+  // Server端JavaScript文件配置
+  {
+    files: ['server/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_', // 允许以下划线开头的未使用参数
+        },
+      ],
+    },
+  },
+
   // 忽略文件
   {
     ignores: [
