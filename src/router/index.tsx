@@ -81,7 +81,7 @@ const ElementWrapper: React.FC<{
 // 核心路由配置数组
 export const routesConfig: CustomRouteObject[] = [
   // 公开路由
-  { path: '/', element: <Navigate to="/home" replace />, hasLayout: false },
+  { path: '/', element: <Navigate to="/login" replace />, hasLayout: false },
   { path: '/home', element: <HomePage />, hasLayout: true },
   { path: '/login', element: <LoginPage />, hasLayout: false },
   // 私有路由
