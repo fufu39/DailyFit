@@ -236,14 +236,24 @@
 }
 
 .ctaCard {
-  background: linear-gradient(135deg, var(--mantine-color-blue-3), var(--mantine-color-cyan-3));
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-1),
+    var(--mantine-color-blue-2),
+    var(--mantine-color-cyan-1)
+  );
   border: none;
   position: relative;
   overflow: hidden;
 }
 
 [data-mantine-color-scheme='dark'] .ctaCard {
-  background: linear-gradient(135deg, var(--mantine-color-blue-9), var(--mantine-color-cyan-9));
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-9),
+    var(--mantine-color-blue-7),
+    var(--mantine-color-cyan-9)
+  );
 }
 
 .ctaCard::before {
@@ -291,6 +301,26 @@
 
 [data-mantine-color-scheme='dark'] .ctaButton:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.ctaButtonSecondary {
+  transition: all 0.3s ease;
+}
+
+.ctaButtonSecondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-mantine-color-scheme='dark'] .ctaButtonSecondary {
+  border-color: white !important;
+  color: white !important;
+}
+
+[data-mantine-color-scheme='dark'] .ctaButtonSecondary:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
 }
 
 /* 响应式设计 */

@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { setupMiddleware } from './middleware/index.js'
 import authRoutes from './routes/auth.js'
+import dashboardRoutes from './routes/dashboard.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename) // 获取当前文件所在目录的路径
@@ -15,6 +16,7 @@ setupMiddleware(app) // 配置中间件
 // 注册API路由
 app.post('/api/login', authRoutes.login)
 app.get('/api/auth/verify', authRoutes.verifyToken)
+app.get('/api/dashboard', dashboardRoutes.getDashboard)
 
 // 健康检查端点
 app.get('/api/health', (req, res) => {
@@ -50,6 +52,7 @@ else {
       api: {
         login: 'POST /api/login',
         verify: 'GET /api/auth/verify',
+        dashboard: 'GET /api/dashboard',
         health: 'GET /api/health',
       },
     })

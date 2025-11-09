@@ -1,0 +1,258 @@
+.dashboardContainer {
+  padding: 2rem 0;
+  height: 100%;
+  position: relative;
+  overflow-y: auto; /* 组件内滚动 */
+  overflow-x: hidden;
+}
+
+/* Loading 状态：隐藏滚动条，固定高度，确保垂直居中 */
+.loading {
+  overflow: hidden !important;
+  height: calc(100vh - 75px - 3rem) !important;
+  min-height: calc(100vh - 75px - 3rem) !important;
+  max-height: calc(100vh - 75px - 3rem) !important;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+/* Lottie 加载动画覆盖层（只在容器内） */
+.lottieOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--mantine-color-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.lottieContainer {
+  width: 400px;
+  height: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+/* 卡片样式 */
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--mantine-shadow-md);
+}
+
+/* Grid 列样式 - 确保高度一致 */
+.gridCol {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Grid 容器样式 - 确保子元素可以填充高度 */
+.gridContainer {
+  align-items: stretch;
+}
+
+/* 图表容器 */
+.chartContainer {
+  width: 100%;
+  height: 300px;
+  min-height: 300px;
+  flex-shrink: 0;
+}
+
+/* 详情按钮 */
+.detailButton {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.card:hover .detailButton {
+  opacity: 1;
+}
+
+/* 个人纪录项 */
+.recordItem {
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.recordItem:hover {
+  background-color: var(--mantine-color-gray-0);
+}
+
+.recordItem:last-child {
+  border-bottom: none;
+}
+
+/* GitHub 风格热力图容器 */
+.heatmapContainer {
+  position: relative;
+  padding: 20px 0 0 40px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 196px;
+  min-height: 196px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-body);
+}
+
+/* 月份标签容器 */
+.monthLabels {
+  position: relative;
+  height: 20px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.monthLabel {
+  position: absolute;
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 星期标签容器 */
+.weekLabels {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 30px;
+}
+
+.weekLabel {
+  height: 11px;
+  font-size: 11px;
+  color: var(--mantine-color-dimmed);
+  text-align: center;
+  line-height: 11px;
+}
+
+/* 热力图网格 */
+.heatmapGrid {
+  display: flex;
+  gap: 3px;
+  padding-top: 2px;
+}
+
+/* 热力图周 */
+.heatmapWeek {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 热力图日期方块 */
+.heatmapDay {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.heatmapDay:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 数据表格样式 */
+.dataTable {
+  width: 100%;
+}
+
+.dataTable thead tr th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--mantine-color-gray-7);
+  background-color: var(--mantine-color-gray-0);
+  padding: 0.75rem;
+  border-bottom: 2px solid var(--mantine-color-gray-2);
+  text-align: left;
+}
+
+.dataTable tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.dataTable tbody tr:hover {
+  background-color: var(--mantine-color-gray-0);
+}
+
+.dataTable tbody tr td {
+  padding: 0.875rem 0.75rem;
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  font-size: 0.875rem;
+}
+
+.dataTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 2rem;
+  }
+
+  .chartContainer {
+    height: 250px;
+    min-height: 250px;
+  }
+
+  .lottieContainer {
+    width: 300px;
+    height: 300px;
+  }
+
+  .heatmapContainer {
+    padding: 15px 0 0 30px;
+    height: 200px;
+    min-height: 200px;
+  }
+
+  .heatmapDay {
+    width: 9px;
+    height: 9px;
+  }
+
+  .weekLabels {
+    width: 25px;
+    top: 35px;
+  }
+
+  .weekLabel {
+    height: 9px;
+    font-size: 10px;
+    line-height: 9px;
+  }
+
+  .monthLabel {
+    font-size: 11px;
+  }
+
+  .dataTable thead tr th,
+  .dataTable tbody tr td {
+    padding: 0.5rem 0.375rem;
+    font-size: 0.75rem;
+  }
+}

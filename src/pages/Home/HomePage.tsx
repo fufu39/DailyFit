@@ -474,7 +474,7 @@ export default function HomePage() {
                   >
                     立即开始
                   </Button>
-                  <Button size="lg" variant="outline" className={styles.ctaButton}>
+                  <Button size="lg" variant="outline" className={styles.ctaButtonSecondary}>
                     了解更多
                   </Button>
                 </Group>
