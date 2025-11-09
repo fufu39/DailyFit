@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form' // 导入React Hook Form用于表单状态管理
 import { motion, AnimatePresence } from 'framer-motion'
@@ -39,6 +39,27 @@ export default function LoginPage() {
   const [shakeKey, setShakeKey] = useState(0) // 控制晃动动画的key（key改变会重新触发动画）
   const [isInitialMount, setIsInitialMount] = useState(true) // 标记是否为初始挂载（用于控制只在首次加载时播放淡入动画）
   const [isLoading, setIsLoading] = useState(false) // 控制登录按钮的加载状态
+
+  // 打字效果相关状态
+  const words = useMemo(
+    () => [
+      'Tracking',
+      'Improving',
+      'Challenging',
+      'Moving',
+      'Striving',
+      'Growing',
+      'Engaging',
+      'Achieving',
+      'Competing',
+      'Winning',
+    ],
+    []
+  )
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [displayedText, setDisplayedText] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [typingSpeed, setTypingSpeed] = useState(100) // 打字速度（毫秒）
 
   // 背景图片
   const backgroundImages = [
@@ -84,6 +105,40 @@ export default function LoginPage() {
       return () => clearTimeout(timer)
     }
   }, [isInitialMount])
+
+  // 打字效果逻辑
+  useEffect(() => {
+    const currentWord = words[currentWordIndex]
+    let timeout: ReturnType<typeof setTimeout>
+
+    if (!isDeleting) {
+      // 打字阶段
+      if (displayedText.length < currentWord.length) {
+        timeout = setTimeout(() => {
+          setDisplayedText(currentWord.slice(0, displayedText.length + 1))
+        }, typingSpeed)
+      } else {
+        // 打字完成，等待2秒后开始删除
+        timeout = setTimeout(() => {
+          setIsDeleting(true)
+          setTypingSpeed(100) // 删除时速度稍快
+        }, 2400)
+      }
+    } else {
+      // 删除阶段
+      if (displayedText.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayedText(currentWord.slice(0, displayedText.length - 1))
+        }, typingSpeed)
+      } else {
+        setIsDeleting(false)
+        setCurrentWordIndex((prev) => (prev + 1) % words.length)
+        setTypingSpeed(100)
+      }
+    }
+
+    return () => clearTimeout(timeout)
+  }, [displayedText, isDeleting, currentWordIndex, words, typingSpeed])
 
   // 初始化React Hook Form
   const {
@@ -226,6 +281,14 @@ export default function LoginPage() {
       <div className={`${styles.decorativeIcon} ${styles.icon6}`}>
         <div className={styles.iconWrapper}>
           <IconSnowboarding size={52} color="rgba(255, 255, 255)" stroke={2} />
+        </div>
+      </div>
+      {/* 描述文字 - 移出卡片容器，独立定位 */}
+      <div className={styles.descriptionText}>
+        <div className={styles.descriptionLine1}>Your daily fit, simplified</div>
+        <div className={styles.descriptionLine2}>
+          Keep <span className={styles.typingText}>{displayedText}</span>
+          <span className={styles.cursor}>|</span>
         </div>
       </div>
       {/* 登录框 */}

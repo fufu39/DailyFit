@@ -32,7 +32,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.5);
   pointer-events: none;
   z-index: 1;
 }
@@ -144,6 +144,91 @@
   width: 80%;
   max-width: 420px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 150px;
+}
+
+/* 描述文字容器*/
+.descriptionText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% - 250px)); /* 垂直居中后向上偏移，确保在登录框上方 */
+  z-index: 3;
+  text-align: center;
+  width: 90%;
+  max-width: 1200px; /* 增加最大宽度，确保文字有足够空间 */
+  padding: 0 20px; /* 添加左右内边距，防止贴边 */
+  font-family:
+    'Poppins',
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    sans-serif;
+  pointer-events: none; /* 防止阻挡点击事件 */
+}
+
+/* 第一行描述文字 */
+.descriptionLine1 {
+  color: rgba(255, 255, 255, 1);
+  font-size: 54px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* 第二行描述文字 */
+.descriptionLine2 {
+  color: rgba(255, 255, 255, 1);
+  font-size: 54px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.3;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+/* 橙色动态文字 */
+.typingText {
+  color: #ff8c42;
+  font-weight: 700;
+  margin-left: 10px;
+  text-shadow: 0 4px 12px rgba(255, 140, 66, 0.1);
+}
+
+/* 光标闪烁动画 */
+.cursor {
+  color: #ff8c42;
+  font-weight: 700;
+  animation: blink 1s infinite;
+  font-size: 36px;
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* 液态玻璃效果卡片 */
@@ -412,7 +497,42 @@
     font-size: 24px;
   }
 
-  .loginContainer {
-    padding: 14px;
+  .cardWrapper {
+    margin-top: 120px;
+  }
+
+  .descriptionText {
+    top: 50%;
+    transform: translate(-50%, calc(-50% - 220px));
+    max-width: 95%;
+    width: 95%;
+    padding: 0 10px;
+  }
+
+  .descriptionLine1 {
+    font-size: 24px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .descriptionLine2 {
+    font-size: 24px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .cursor {
+    font-size: 22px;
+    margin-left: 2px;
+  }
+
+  .typingText {
+    font-weight: 700;
   }
 }
