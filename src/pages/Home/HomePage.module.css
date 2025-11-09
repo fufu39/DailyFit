@@ -1,0 +1,359 @@
+.homePage {
+  min-height: 100vh;
+}
+
+/* Hero 区域样式 */
+.heroSection {
+  height: calc(100vh - 75px - 32px - 24px + 100px);
+  margin-bottom: 20px;
+  margin-top: -100px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.heroContent {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.sloganContainer {
+  flex: 1;
+  min-width: 300px;
+  margin-left: 24px;
+}
+
+.sloganTitle {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  letter-spacing: 8px;
+  background: linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sloganSubtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--mantine-color-gray-7) !important;
+  line-height: 1.4;
+}
+
+[data-mantine-color-scheme='dark'] .sloganSubtitle {
+  color: var(--mantine-color-gray-4) !important;
+}
+
+.lottieContainer {
+  position: absolute;
+  right: 0;
+  top: 17%;
+  min-width: 680px;
+  max-width: 1200px;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lottieAnimation {
+  width: 100%;
+  height: 100%;
+}
+
+/* 核心功能区域样式 */
+.featuresSection {
+  padding: 1rem 1rem 4rem;
+}
+
+.featuresTitle {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+.featureCard {
+  height: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme='dark'] .featureCard {
+  border-color: var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-7);
+}
+
+.featureCard:hover {
+  box-shadow: var(--mantine-shadow-md);
+}
+
+[data-mantine-color-scheme='dark'] .featureCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--mantine-radius-md);
+  background: linear-gradient(135deg, var(--mantine-color-blue-1), var(--mantine-color-cyan-1));
+  color: var(--mantine-color-blue-6);
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+[data-mantine-color-scheme='dark'] .featureIcon {
+  background: linear-gradient(135deg, var(--mantine-color-blue-9), var(--mantine-color-cyan-9));
+  color: var(--mantine-color-blue-4);
+}
+
+.featureCard:hover .featureIcon {
+  transform: rotate(5deg) scale(1.1);
+}
+
+/* 通用区域标题样式 */
+.sectionTitle {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+/* 统计数据区域样式 */
+.statsSection {
+  padding: 5rem 1rem;
+  background: var(--mantine-color-body);
+  margin: 4rem 0;
+}
+
+.statCard {
+  height: 100%;
+  text-align: center;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-gray-3);
+  transition: all 0.3s ease;
+}
+
+[data-mantine-color-scheme='dark'] .statCard {
+  border-color: var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-7);
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+[data-mantine-color-scheme='dark'] .statCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.statIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mantine-color-blue-1), var(--mantine-color-cyan-1));
+  color: var(--mantine-color-blue-6);
+  /* margin-bottom: 1rem; */
+  transition: all 0.3s ease;
+}
+
+[data-mantine-color-scheme='dark'] .statIcon {
+  background: linear-gradient(135deg, var(--mantine-color-blue-9), var(--mantine-color-cyan-9));
+  color: var(--mantine-color-blue-4);
+}
+
+.statCard:hover .statIcon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.statValue {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 用户评价区域样式 */
+.testimonialsSection {
+  padding: 5rem 1rem;
+  margin: 4rem 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.testimonialCard {
+  height: 100%;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-gray-3);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+[data-mantine-color-scheme='dark'] .testimonialCard {
+  border-color: var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-7);
+}
+
+.testimonialCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+[data-mantine-color-scheme='dark'] .testimonialCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quoteIcon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  opacity: 0.1;
+  color: var(--mantine-color-blue-6);
+}
+
+[data-mantine-color-scheme='dark'] .quoteIcon {
+  opacity: 0.2;
+  color: var(--mantine-color-blue-4);
+}
+
+/* 行动号召区域样式 */
+.ctaSection {
+  padding: 2rem 1rem;
+  margin: 4rem 0;
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, var(--mantine-color-blue-3), var(--mantine-color-cyan-3));
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-mantine-color-scheme='dark'] .ctaCard {
+  background: linear-gradient(135deg, var(--mantine-color-blue-9), var(--mantine-color-cyan-9));
+}
+
+.ctaCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  pointer-events: none;
+}
+
+[data-mantine-color-scheme='dark'] .ctaCard::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+}
+
+.ctaTitle {
+  color: var(--mantine-color-gray-9) !important;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+}
+
+[data-mantine-color-scheme='dark'] .ctaTitle {
+  color: var(--mantine-color-gray-0) !important;
+}
+
+.ctaSubTitle {
+  color: var(--mantine-color-gray-8) !important;
+  font-size: 20px;
+}
+
+[data-mantine-color-scheme='dark'] .ctaSubTitle {
+  color: var(--mantine-color-gray-2) !important;
+}
+
+.ctaButton {
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-mantine-color-scheme='dark'] .ctaButton:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .heroSection {
+    justify-content: center;
+  }
+
+  .heroContent {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .sloganContainer {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .lottieContainer {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    min-width: 250px;
+    margin: 2rem auto 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .lottieAnimation {
+    max-width: 350px;
+    max-height: 350px;
+    min-height: 250px;
+  }
+
+  .featuresSection {
+    padding: 2rem 1rem;
+  }
+
+  .statsSection {
+    padding: 3rem 1rem;
+    margin: 2rem 0;
+  }
+
+  .testimonialsSection {
+    padding: 3rem 1rem;
+    margin: 2rem 0;
+  }
+
+  .ctaSection {
+    padding: 3rem 1rem;
+    margin: 2rem 0;
+  }
+
+  .statIcon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .statValue {
+    font-size: 2rem;
+  }
+}
