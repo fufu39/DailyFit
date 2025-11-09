@@ -5,13 +5,26 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: 20px;
+  width: 100%;
+  height: 100vh;
+}
+
+/* 背景图片层：固定大小和位置，cover居中 */
+.backgroundLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding: 20px;
-  transition: background-image 0.8s ease-in-out;
+  z-index: 0;
+  will-change: opacity;
 }
 
+/* 用于添加模糊遮罩：目前去掉 */
 .loginContainer::before {
   content: '';
   position: absolute;
@@ -20,32 +33,27 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 
-/* Logo样式 */
+/* Logo样式：绝对定位在左上角 */
 .logo {
   position: absolute;
-  top: 30px;
-  left: 30px;
+  top: -15px;
+  left: 25px;
   z-index: 100;
-  width: 100px;
-  height: 100px;
+  width: 160px;
+  height: 160px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-  transition: transform 0.3s ease;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 8px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .logo:hover {
-  transform: scale(1.1);
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
+  transform: scale(1.08);
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.8));
 }
 
 /* 装饰性图标元素 */
@@ -54,106 +62,97 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(25px) saturate(180%);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  pointer-events: none;
-  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  z-index: 2;
   box-shadow:
-    0 8px 32px 0 rgba(0, 0, 0, 0.12),
+    0 8px 32px 0 rgba(0, 0, 0, 0.2),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  opacity: 0.75;
+  transition: all 0.3s ease;
+  padding: 10px;
 }
-
+.decorativeIcon:hover {
+  opacity: 1;
+}
 .iconWrapper {
-  padding: 16px;
+  padding: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+  transition: all 0.3s ease;
+}
+.iconWrapper:hover {
+  padding: 20px;
+  transform: scale(1.1);
 }
 
 .icon1 {
-  width: 140px;
-  height: 140px;
-  top: 8%;
-  right: 4%;
-  animation: float 20s ease-in-out infinite;
+  top: 12%;
+  left: 16%;
+  animation: float 10s ease-in-out infinite;
 }
-
 .icon2 {
-  width: 120px;
-  height: 120px;
-  bottom: 12%;
-  left: 4%;
-  animation: float 18s ease-in-out infinite reverse;
-}
-
-.icon3 {
-  width: 110px;
-  height: 110px;
-  top: 48%;
+  top: 46%;
   left: 6%;
-  animation: float 22s ease-in-out infinite;
+  animation: float 12s ease-in-out infinite;
 }
-
+.icon3 {
+  bottom: 12%;
+  left: 20%;
+  animation: float 8s linear infinite;
+}
 .icon4 {
-  width: 100px;
-  height: 100px;
-  top: 68%;
-  right: 8%;
-  animation: float 16s ease-in-out infinite;
+  top: 20%;
+  right: 22%;
+  animation: float 10s ease-in-out infinite;
 }
-
 .icon5 {
-  width: 95px;
-  height: 95px;
-  top: 25%;
-  left: 8%;
-  animation: float 19s ease-in-out infinite reverse;
+  top: 46%;
+  right: 6%;
+  animation: float 12s ease-in-out infinite;
 }
-
 .icon6 {
-  width: 90px;
-  height: 90px;
-  bottom: 25%;
-  right: 12%;
-  animation: float 17s ease-in-out infinite;
+  bottom: 8%;
+  right: 16%;
+  animation: float 8s ease-in-out infinite;
 }
-
 @keyframes float {
   0%,
   100% {
     transform: translate(0, 0) rotate(0deg);
   }
   25% {
-    transform: translate(20px, -20px) rotate(5deg);
+    transform: translate(20px, -20px) rotate(8deg);
   }
   50% {
-    transform: translate(-15px, 15px) rotate(-5deg);
+    transform: translate(-16px, 16px) rotate(-8deg);
   }
   75% {
-    transform: translate(10px, -10px) rotate(3deg);
+    transform: translate(12px, -12px) rotate(4deg);
   }
 }
 
 /* 液态玻璃卡片容器 */
 .cardWrapper {
   position: relative;
-  width: 100%;
+  width: 80%;
   max-width: 420px;
   z-index: 10;
 }
 
-/* 液态玻璃效果卡片 - 健身主题优化 */
+/* 液态玻璃效果卡片 */
 .glassCard {
   position: relative;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 2px solid rgba(255, 255, 255, 0.15);
   box-shadow:
     0 20px 60px 0 rgba(0, 0, 0, 0.3),
     inset 0 2px 0 0 rgba(255, 255, 255, 0.5),
@@ -161,34 +160,9 @@
     0 0 0 1px rgba(255, 255, 255, 0.1),
     0 0 40px rgba(255, 140, 66, 0.1);
   border-radius: 24px;
-  padding: 48px 40px;
+  padding: 26px 50px 30px;
   width: 100%;
   overflow: hidden;
-}
-
-/* 添加健身主题的渐变边框效果 */
-.glassCard::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.4), rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
-  border-radius: 24px;
-  z-index: -1;
-  opacity: 0.6;
-  animation: borderGlow 3s ease-in-out infinite;
-}
-
-@keyframes borderGlow {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.8;
-  }
 }
 
 /* 顶部光泽条 */
@@ -198,13 +172,13 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 2px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6) 50%, transparent);
   pointer-events: none;
   z-index: 2;
 }
 
-/* 标题样式 - 健身主题 */
+/* 标题样式 */
 .title {
   position: relative;
   z-index: 3;
@@ -212,105 +186,172 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: 700;
   text-align: center;
-  margin-bottom: 16px;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-  font-size: 36px;
-  letter-spacing: 1px;
+  font-size: 30px;
+  margin-bottom: 20px;
+  /* word-spacing: 4px; */
 }
 
-/* 副标题样式 */
-.subtitle {
-  position: relative;
-  z-index: 3;
-  color: rgba(255, 255, 255, 0.95);
-  text-align: center;
-  margin-top: 8px;
-  margin-bottom: 32px;
-  font-size: 14px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* 输入框样式优化 - 健身主题 */
+/* 输入框样式 */
 .inputWrapper {
   position: relative;
   z-index: 3;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
-.inputWrapper :global(.mantine-Input-input) {
-  background: rgba(255, 255, 255, 0.98);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(15px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #1a1a1a;
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* TextInput和普通Input的通用样式 */
+.inputWrapper :global(.mantine-Input-input),
+.inputWrapper :global(.mantine-TextInput-input) {
+  background: rgba(255, 255, 255) !important;
+  border: 2px solid rgba(241, 241, 241, 0.5) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #000 !important;
+  border-radius: 5px !important;
+  padding: 10px 12px !important;
+  min-height: 45px;
+  font-size: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  letter-spacing: 1px !important;
 }
 
-.inputWrapper :global(.mantine-Input-input::placeholder) {
-  color: rgba(0, 0, 0, 0.45);
+/* PasswordInput外层容器样式 - 负责布局和外观 */
+.inputWrapper :global(.mantine-PasswordInput-input) {
+  background: rgba(255, 255, 255) !important;
+  border: 2px solid rgba(241, 241, 241, 0.5) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 5px !important;
+  min-height: 45px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
 }
 
-.inputWrapper :global(.mantine-Input-input:focus) {
-  background: rgba(255, 255, 255, 1);
-  border-color: #ff8c42;
+/* PasswordInput内层input元素样式 - 负责输入框本身 */
+.inputWrapper :global(.mantine-PasswordInput-innerInput) {
+  background: transparent !important;
+  border: none !important;
+  color: #000 !important;
+  padding: 10px 12px !important;
+  font-size: 16px !important;
+  letter-spacing: 1px !important;
+  flex: 1 !important;
+  outline: none !important;
+}
+
+/* PasswordInput右侧显示/隐藏按钮区域 */
+.inputWrapper :global(.mantine-PasswordInput-rightSection) {
+  display: flex !important;
+  align-items: center !important;
+  padding-right: 8px !important;
+}
+
+/* Placeholder样式 */
+.inputWrapper :global(.mantine-Input-input::placeholder),
+.inputWrapper :global(.mantine-TextInput-input::placeholder),
+.inputWrapper :global(.mantine-PasswordInput-innerInput::placeholder) {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Hover状态 */
+.inputWrapper :global(.mantine-Input-input:hover:not(:focus)),
+.inputWrapper :global(.mantine-PasswordInput-input:hover:not(:focus)),
+.inputWrapper :global(.mantine-TextInput-input:hover:not(:focus)),
+.inputWrapper :global(.mantine-PasswordInput-wrapper:hover .mantine-PasswordInput-input:not(:focus)),
+.inputWrapper :global(.mantine-Input-wrapper:hover .mantine-Input-input:not(:focus)),
+.inputWrapper :global(.mantine-TextInput-wrapper:hover .mantine-TextInput-input:not(:focus)) {
+  border-color: #ff8c42 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+/* Focus状态 */
+.inputWrapper :global(.mantine-Input-input:focus),
+.inputWrapper :global(.mantine-PasswordInput-input:focus),
+.inputWrapper :global(.mantine-TextInput-input:focus),
+.inputWrapper :global(.mantine-Input-input:focus-within),
+.inputWrapper :global(.mantine-PasswordInput-input:focus-within),
+.inputWrapper :global(.mantine-TextInput-input:focus-within),
+.inputWrapper :global(.mantine-PasswordInput-wrapper:focus-within .mantine-PasswordInput-input),
+.inputWrapper :global(.mantine-PasswordInput-root:focus-within .mantine-PasswordInput-input),
+.inputWrapper :global(.mantine-Input-wrapper:focus-within .mantine-Input-input),
+.inputWrapper :global(.mantine-TextInput-wrapper:focus-within .mantine-TextInput-input) {
+  border-color: #ff7f30 !important;
   box-shadow:
     0 0 0 4px rgba(255, 140, 66, 0.2),
-    0 6px 20px rgba(255, 140, 66, 0.3);
-  transform: translateY(-2px);
+    0 6px 20px rgba(255, 140, 66, 0.3) !important;
+  transform: translateY(-2px) !important;
+  outline: none !important;
+}
+/* Disabled状态 */
+.inputWrapper :global(.mantine-Input-input:disabled),
+.inputWrapper :global(.mantine-PasswordInput-input:disabled),
+.inputWrapper :global(.mantine-TextInput-input:disabled) {
+  background: rgba(255, 255, 255, 0.7) !important;
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
 }
 
-.inputWrapper :global(.mantine-Input-input:hover:not(:focus)) {
-  border-color: rgba(255, 140, 66, 0.5);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+/* Label样式优化 */
+.inputWrapper :global(.mantine-Input-label),
+.inputWrapper :global(.mantine-PasswordInput-label),
+.inputWrapper :global(.mantine-TextInput-label) {
+  color: rgba(255, 255, 255, 1) !important;
+  font-weight: 700 !important;
+  margin-bottom: 6px !important;
+  font-size: 15px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  letter-spacing: 1.8px !important;
+  display: block !important;
+  transition: all 0.3s ease !important;
+  line-height: 1.5 !important;
 }
 
-.inputWrapper :global(.mantine-Input-input:disabled) {
-  background: rgba(255, 255, 255, 0.7);
-  opacity: 0.7;
+/* Error样式 - 确保两个输入框的错误信息都生效，覆盖所有可能的类名和结构 */
+.inputWrapper :global(.mantine-Input-error),
+.inputWrapper :global(.mantine-PasswordInput-error),
+.inputWrapper :global(.mantine-TextInput-error),
+.inputWrapper :global(.mantine-InputWrapper-error),
+.inputWrapper :global([class*='mantine-Input-error']),
+.inputWrapper :global([class*='mantine-PasswordInput-error']),
+.inputWrapper :global([class*='TextInput-error']),
+.inputWrapper :global([class*='InputWrapper-error']),
+.inputWrapper > :global(div > span[class*='error']),
+.inputWrapper :global(span[class*='error']),
+.inputWrapper :global(p[class*='error']),
+.inputWrapper :global(div[class*='error']) {
+  padding: 5px 10px !important;
+  margin-top: 6px !important;
+  font-size: 12px !important;
+  font-weight: bold;
+  line-height: 1.4 !important;
+  text-align: left !important;
+  color: #c62828 !important;
+  background-color: #fff;
+  border-left: 4px solid #d32f2f !important;
+  box-shadow:
+    0 2px 12px rgba(211, 47, 47, 0.2),
+    0 0 0 1px rgba(211, 47, 47, 0.1) inset !important;
+  backdrop-filter: blur(10px) !important;
 }
 
-.inputWrapper :global(.mantine-Input-label) {
-  color: rgba(255, 255, 255, 0.98);
-  font-weight: 600;
-  margin-bottom: 10px;
-  font-size: 15px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.5px;
-}
-
-.inputWrapper :global(.mantine-Input-error) {
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(244, 67, 54, 0.9);
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-top: 4px;
-  font-size: 12px;
-  backdrop-filter: blur(10px);
-}
-
-/* 按钮样式优化 - 健身主题 */
+/* 按钮样式优化 */
 .submitButton {
   position: relative;
   z-index: 3;
-  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 30%, #4facfe 70%, #00f2fe 100%);
-  background-size: 200% 200%;
+  background: linear-gradient(90deg, #ff8c42 0%, #ff6b35 30%, #4facfe 70%, #00f2fe 100%);
+  background-size: 250% 200%;
   border: none;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s ease-in-out;
   font-weight: 700;
-  margin-top: 32px;
-  height: 52px;
-  border-radius: 12px;
+  margin-top: 5px;
+  height: 40px;
+  border-radius: 5px;
   font-size: 16px;
-  letter-spacing: 1px;
+  letter-spacing: 4px;
   box-shadow:
-    0 8px 24px 0 rgba(255, 140, 66, 0.5),
-    inset 0 2px 0 0 rgba(255, 255, 255, 0.4),
-    0 0 20px rgba(255, 140, 66, 0.3);
+    0 8px 24px 0 rgba(255, 140, 66, 0.3),
+    inset 0 2px 0 0 rgba(255, 255, 255, 0.2),
+    0 0 20px rgba(255, 140, 66, 0.1);
   overflow: hidden;
 }
 
@@ -328,130 +369,50 @@
 .submitButton:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow:
-    0 12px 32px 0 rgba(255, 140, 66, 0.7),
-    inset 0 2px 0 0 rgba(255, 255, 255, 0.5),
-    0 0 30px rgba(79, 172, 254, 0.4);
+    0 12px 32px 0 rgba(255, 140, 66, 0.5),
+    inset 0 2px 0 0 rgba(255, 255, 255, 0.3),
+    0 0 30px rgba(79, 172, 254, 0.2);
   background-position: 100% 0;
 }
-
 .submitButton:hover:not(:disabled)::before {
   left: 100%;
 }
-
 .submitButton:active:not(:disabled) {
   transform: translateY(-1px);
   box-shadow:
-    0 6px 20px 0 rgba(255, 140, 66, 0.6),
-    inset 0 2px 0 0 rgba(255, 255, 255, 0.4);
+    0 6px 20px 0 rgba(255, 140, 66, 0.4),
+    inset 0 2px 0 0 rgba(255, 255, 255, 0.2);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .glassCard {
-    padding: 30px 24px;
+    padding: 13px 30px 15px;
     border-radius: 16px;
     backdrop-filter: blur(30px) saturate(200%);
     -webkit-backdrop-filter: blur(30px) saturate(200%);
   }
 
   .logo {
-    top: 20px;
+    top: 10px;
     left: 20px;
     width: 80px;
     height: 80px;
   }
 
-  .icon1 {
-    width: 100px;
-    height: 100px;
-    opacity: 0.7;
+  .decorativeIcon {
+    display: none;
   }
 
-  .icon2 {
-    width: 90px;
-    height: 90px;
-    opacity: 0.7;
-  }
-
-  .icon3 {
-    width: 80px;
-    height: 80px;
-    opacity: 0.7;
-  }
-
-  .icon4 {
-    width: 70px;
-    height: 70px;
-    opacity: 0.7;
-  }
-
-  .icon5 {
-    width: 65px;
-    height: 65px;
-    opacity: 0.7;
-  }
-
-  .icon6 {
-    width: 60px;
-    height: 60px;
-    opacity: 0.7;
-  }
-
-  .decorativeIcon .iconWrapper {
-    padding: 12px;
-  }
-
-  .decorativeIcon svg {
-    width: 32px !important;
-    height: 32px !important;
-  }
-
-  .loginContainer {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .glassCard {
-    padding: 24px 20px;
+  .cardWrapper {
+    max-width: 350px;
   }
 
   .title {
     font-size: 24px;
   }
 
-  .icon1 {
-    width: 80px;
-    height: 80px;
-  }
-
-  .icon2 {
-    width: 70px;
-    height: 70px;
-  }
-
-  .icon3 {
-    width: 65px;
-    height: 65px;
-  }
-
-  .icon4 {
-    width: 60px;
-    height: 60px;
-  }
-
-  .icon5 {
-    width: 55px;
-    height: 55px;
-  }
-
-  .icon6 {
-    width: 50px;
-    height: 50px;
-  }
-
-  .decorativeIcon svg {
-    width: 28px !important;
-    height: 28px !important;
+  .loginContainer {
+    padding: 14px;
   }
 }

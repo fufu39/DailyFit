@@ -28,6 +28,7 @@ const RouterFallback: React.FC = () => (
     style={{
       minHeight: '100vh',
       flexDirection: 'column',
+      backgroundColor: '#f0f0f0',
     }}
   >
     <Loader size="xl" color="blue" variant="bars" />
