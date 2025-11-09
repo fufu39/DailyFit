@@ -149,8 +149,8 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     defaultValues: {
       // 表单默认值
-      username: '',
-      password: '',
+      username: 'fufu39',
+      password: '1',
     },
   })
 
@@ -198,7 +198,8 @@ export default function LoginPage() {
       setShakeKey((prev) => prev + 1) // 触发晃动动画
 
       const errorMessage =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message || '用户名或密码错误'
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        '用户名或密码错误'
 
       // 使用RHF的setError将错误信息显示在密码框下方
       setError('password', {

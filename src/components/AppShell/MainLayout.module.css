@@ -4,10 +4,15 @@
 
 .header {
   border-bottom: 1px solid var(--mantine-color-gray-3);
-  background: var(--mantine-color-white);
+  background: var(--mantine-color-body);
   z-index: 999;
   overflow: hidden;
   box-shadow: 0 5px 6px 0 rgba(0, 0, 0, 0.03);
+}
+
+[data-mantine-color-scheme='dark'] .header {
+  border-bottom-color: var(--mantine-color-dark-4);
+  box-shadow: 0 5px 6px 0 rgba(0, 0, 0, 0.1);
 }
 
 .brandGroup {
@@ -25,7 +30,11 @@
 /* 品牌文字 - 每个文字都有独立的流光效果 */
 .brandText {
   font-size: 23px;
-  background: linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-cyan-6) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-6) 0%,
+    var(--mantine-color-cyan-6) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -58,12 +67,25 @@
   mix-blend-mode: screen;
 }
 
+/* 暗黑模式下的灰色流光效果 */
+[data-mantine-color-scheme='dark'] .brandText::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(100, 100, 100, 0.4) 40%,
+    rgba(160, 160, 160, 0.6) 50%,
+    rgba(100, 100, 100, 0.4) 60%,
+    transparent 100%
+  );
+  mix-blend-mode: overlay;
+}
+
 .brandText:hover::after {
   left: 100%;
 }
 
 .navbar {
-  background: var(--mantine-color-white);
+  background: var(--mantine-color-body);
   box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.05);
 }
 
@@ -76,9 +98,18 @@
 
 /* 针对 NavLink 内部的文本元素设置字体大小 */
 
+/* 暗黑模式下普通状态的字体颜色 */
+[data-mantine-color-scheme='dark'] .navLink {
+  color: var(--mantine-color-gray-2);
+}
+
 .navLink:hover {
   background-color: var(--mantine-color-gray-2);
   transform: translateX(2px);
+}
+
+[data-mantine-color-scheme='dark'] .navLink:hover {
+  background-color: var(--mantine-color-dark-4);
 }
 
 .navLink[data-active='true'] {
@@ -87,8 +118,19 @@
   font-weight: 600;
 }
 
+/* 暗黑模式下选中状态的字体颜色 */
+[data-mantine-color-scheme='dark'] .navLink[data-active='true'] {
+  background-color: var(--mantine-color-blue-9);
+  /* color: var(--mantine-color-blue-2); */
+  color: var(--mantine-color-gray-0);
+}
+
 .navLink[data-active='true']:hover {
   background-color: var(--mantine-color-blue-1);
+}
+
+[data-mantine-color-scheme='dark'] .navLink[data-active='true']:hover {
+  background-color: var(--mantine-color-blue-7);
 }
 
 .userButton {
@@ -101,17 +143,31 @@
   background-color: var(--mantine-color-gray-1);
 }
 
+[data-mantine-color-scheme='dark'] .userButton:hover {
+  background-color: var(--mantine-color-dark-5);
+}
+
 .main {
   background: var(--mantine-color-gray-1);
   min-height: calc(100vh);
 }
 
+[data-mantine-color-scheme='dark'] .main {
+  background: var(--mantine-color-dark-8);
+}
+
 .content {
-  background: var(--mantine-color-white);
+  background: var(--mantine-color-body);
   border-radius: var(--mantine-radius-md);
   padding: var(--mantine-spacing-lg);
   min-height: 100%;
   /* box-shadow: 0 4px 16px 0 rgba(34, 60, 115, 0.10), 0 0 8px 0 rgba(0, 0, 0, 0.04); */
+}
+
+[data-mantine-color-scheme='dark'] .content {
+  box-shadow:
+    0 4px 16px 0 rgba(0, 0, 0, 0.2),
+    0 0 8px 0 rgba(0, 0, 0, 0.1);
 }
 
 .burger {
