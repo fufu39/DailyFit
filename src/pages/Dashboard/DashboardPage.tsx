@@ -6,7 +6,6 @@ import {
   Card,
   Title,
   Text,
-  Skeleton,
   Stack,
   Group,
   ActionIcon,
@@ -678,8 +677,7 @@ export default function DashboardPage() {
     return (
       <Stack gap="md">
         {/* 年份选择器 */}
-        <Group justify="space-between" align="center" mb="sm">
-          <Title order={4}>训练日历</Title>
+        <Group justify="space-between" align="center" mb="lg" mt="md">
           <Select
             value={selectedYear.toString()}
             onChange={(value) => value && setSelectedYear(parseInt(value, 10))}
@@ -687,29 +685,29 @@ export default function DashboardPage() {
             w={120}
             size="sm"
           />
-        </Group>
 
-        {/* 图例 */}
-        <Group gap="xs" justify="flex-end" mb="xs">
-          <Text size="xs" c="dimmed" mr="sm">
-            强度
-          </Text>
-          {['无', '低', '中', '高', '极高'].map((label, index) => (
-            <Group key={index} gap={4}>
-              <Box
-                style={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: 3,
-                  backgroundColor: getIntensityColor(index),
-                  border: '1px solid rgba(0,0,0,0.1)',
-                }}
-              />
-              <Text size="xs" c="dimmed">
-                {label}
-              </Text>
-            </Group>
-          ))}
+          {/* 图例 */}
+          <Group gap="xs" justify="flex-end">
+            <Text size="xs" c="dimmed" mr="sm">
+              强度
+            </Text>
+            {['无', '低', '中', '高', '极高'].map((label, index) => (
+              <Group key={index} gap={4}>
+                <Box
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: 3,
+                    backgroundColor: getIntensityColor(index),
+                    border: '1px solid rgba(0,0,0,0.1)',
+                  }}
+                />
+                <Text size="xs" c="dimmed">
+                  {label}
+                </Text>
+              </Group>
+            ))}
+          </Group>
         </Group>
 
         {/* 热力图 */}
@@ -717,25 +715,18 @@ export default function DashboardPage() {
           {/* 月份标签 */}
           <Box className={styles.monthLabels}>
             {monthLabels.map((month, index) => {
-              // index 是月份标签索引（0-11），对应月份数字（0-11）
               const monthNum = index
               const weekIndex = monthPositions[monthNum]
-              // 如果该月没有位置数据，跳过（理论上不应该发生，因为生成了一整年的数据）
               if (weekIndex === undefined) return null
 
-              // 基于实际周列位置计算：每个周列宽度 = 方块宽度 + gap
-              // 响应式：移动端使用 9px 方块 + 3px gap，桌面端使用 11px 方块 + 3px gap
-              // 左侧padding：移动端 30px，桌面端 40px
-              // 周列开始位置 = 左侧padding + weekIndex * 周列宽度
-              // 月份标签左边缘对齐到周列开始位置
               const dayWidth = isMobile ? 9 : 11 // 日期方块宽度（响应式）
               const gap = 3 // 间距
               const weekColumnWidth = dayWidth + gap // 周列宽度
               const leftPadding = isMobile ? 30 : 40 // 左侧padding（响应式，与weekLabels对齐）
-              const position = leftPadding + weekIndex * weekColumnWidth
+              const monthLabelOffset = -30 // 整体左移
+              const position = leftPadding + weekIndex * weekColumnWidth + monthLabelOffset
 
               // 检查是否与前面的月份标签重叠，如果重叠则跳过（避免显示重复的月份标签）
-              // 由于月份标签按照1-12月的顺序渲染，1月会最先显示在最前面
               const shouldShow =
                 index === 0 ||
                 monthPositions[monthNum - 1] === undefined ||
@@ -760,7 +751,6 @@ export default function DashboardPage() {
           {/* 星期标签 */}
           <Box className={styles.weekLabels}>
             {weekDays.map((day, index) => {
-              // 只在特定位置显示标签（如周一、周三、周五）
               if (index % 2 === 0) {
                 return (
                   <Box key={index} className={styles.weekLabel}>
@@ -845,16 +835,6 @@ export default function DashboardPage() {
     },
   }
 
-  // 骨架屏组件
-  const SkeletonCard = () => (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
-      <Stack gap="md">
-        <Skeleton height={24} width="60%" />
-        <Skeleton height={200} />
-      </Stack>
-    </Card>
-  )
-
   return (
     <Container
       size="xl"
@@ -883,39 +863,7 @@ export default function DashboardPage() {
         animate={{ opacity: showLottie && isFirstLoad ? 0 : 1 }}
         transition={{ duration: 0.5, delay: showLottie && isFirstLoad ? 0.3 : 0 }}
       >
-        {/* <Title order={1} mb="xl" className={styles.pageTitle}>
-          仪表盘
-        </Title> */}
-
-        {isLoading && !data ? (
-          // 骨架屏 - 显示8个卡片
-          <Grid className={styles.gridContainer}>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }} className={styles.gridCol}>
-              <SkeletonCard />
-            </Grid.Col>
-          </Grid>
-        ) : data ? (
+        {data ? (
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -962,7 +910,7 @@ export default function DashboardPage() {
                   }}
                 >
                   <Card shadow="sm" padding="lg" radius="md" withBorder className={styles.card}>
-                    <Group justify="space-between" mb="md">
+                    <Group justify="space-between" mb={0}>
                       <Group gap="xs">
                         <IconChartLine size={24} />
                         <Title order={3} size="h4">
