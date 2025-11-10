@@ -8,6 +8,7 @@ import {
   Text,
   Stack,
   Group,
+  Paper,
   ActionIcon,
   Modal,
   Box,
@@ -553,6 +554,10 @@ export default function DashboardPage() {
     // 计算最大值，避免使用固定的30
     const maxValue = Math.max(...data.bodyPartDistribution.map((item) => item.value), 10)
     const roundedMax = Math.ceil(maxValue / 10) * 10
+    // 依据 Mantine 的配色方案调整文字颜色
+    const root = document.documentElement
+    const isDark = root.getAttribute('data-mantine-color-scheme') === 'dark'
+    const axisNameColor = isDark ? '#e9ecef' : '#fefefe'
 
     const option: EChartsOption = {
       tooltip: {
@@ -566,9 +571,9 @@ export default function DashboardPage() {
         center: ['50%', '55%'],
         radius: '70%',
         axisName: {
-          color: '#333',
-          fontSize: 14,
-          fontWeight: 500,
+          color: axisNameColor,
+          fontSize: 18,
+          fontWeight: 700,
         },
         splitArea: {
           show: true,
@@ -947,7 +952,7 @@ export default function DashboardPage() {
                       <Group gap="xs">
                         <IconTrophy size={24} />
                         <Title order={3} size="h4">
-                          个人纪录(PR)
+                          个人纪录
                         </Title>
                       </Group>
                       <ActionIcon
@@ -959,24 +964,29 @@ export default function DashboardPage() {
                       </ActionIcon>
                     </Group>
                     <Stack gap="sm" mt="md">
-                      {data.personalRecords.map((record, index) => (
-                        <Group
-                          key={index}
-                          justify="space-between"
-                          p="xs"
-                          className={styles.recordItem}
-                        >
-                          <Text fw={500}>{record.name}</Text>
-                          <Group gap="xs">
-                            <Text c="blue" fw={700}>
-                              {record.value}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              {record.date}
-                            </Text>
+                      <div className={styles.recordList}>
+                        {data.personalRecords.map((record, index) => (
+                          <Group
+                            key={index}
+                            justify="space-between"
+                            p="sm"
+                            className={styles.recordItem}
+                          >
+                            <Group gap="xs">
+                              <Text fw={500}>{record.name}</Text>
+                              <Text span>{record.icon}</Text>
+                            </Group>
+                            <Group gap="xs">
+                              <Text c="blue" fw={700}>
+                                {record.value}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                达成日期: {record.date}
+                              </Text>
+                            </Group>
                           </Group>
-                        </Group>
-                      ))}
+                        ))}
+                      </div>
                     </Stack>
                   </Card>
                 </motion.div>
@@ -1317,9 +1327,8 @@ export default function DashboardPage() {
           setSelectedDateData(null)
         }}
         title={
-          openedModal === 'calendar'
-            ? '训练详情'
-            : openedModal === 'weight'
+          <Text size="lg" fw={700}>
+            {openedModal === 'weight'
               ? '体重趋势详情'
               : openedModal === 'records'
                 ? '个人纪录详情'
@@ -1331,7 +1340,8 @@ export default function DashboardPage() {
                       ? '运动类型分布详情'
                       : openedModal === 'trainingRecords'
                         ? '最近训练记录详情'
-                        : '本周训练计划详情'
+                        : '本周训练计划详情'}
+          </Text>
         }
         size="xl"
         centered
@@ -1341,46 +1351,170 @@ export default function DashboardPage() {
         }}
       >
         {openedModal === 'calendar' && data && selectedDate && selectedDateData !== null && (
-          <Stack gap="md">
-            <Text size="lg" fw={600}>
-              {selectedDate} 训练详情
-            </Text>
-            <Group>
-              <Badge size="lg" color="blue" variant="light">
-                训练强度: {selectedDateData}/5
+          <Stack gap="lg">
+            {/* 标题区 */}
+            <Group justify="space-between" align="center">
+              <Group>
+                <IconCalendar size={20} color="var(--mantine-color-blue-6)" />
+                <Text size="xl" fw={800} className={styles.modalTitle}>
+                  {selectedDate} 训练详情
+                </Text>
+              </Group>
+              <Badge size="md" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
+                强度 {selectedDateData}/5
               </Badge>
             </Group>
+
+            {/* 强度图例 */}
+            <Group gap="xs" className={styles.modalSection}>
+              <Text size="xs" c="dimmed">
+                强度图例
+              </Text>
+              {[0, 1, 2, 3, 4].map((lvl) => {
+                const colors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
+                return (
+                  <Box
+                    key={lvl}
+                    className={styles.intensityBox}
+                    style={{
+                      backgroundColor: colors[lvl],
+                      outline:
+                        lvl + 1 === Number(selectedDateData)
+                          ? '2px solid var(--mantine-color-blue-6)'
+                          : '1px solid rgba(0,0,0,0.1)',
+                    }}
+                    title={`强度 ${lvl + 1}`}
+                  />
+                )
+              })}
+            </Group>
+
+            {/* 关键信息 */}
+            <Grid gutter="md">
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Card withBorder padding="md" radius="md">
+                  <Group gap="sm" align="flex-start">
+                    <IconChartBar size={22} color="var(--mantine-color-blue-6)" />
+                    <Stack gap={4}>
+                      <Text className={styles.modalStatValue}>{selectedDateData}/5</Text>
+                      <Text className={styles.modalStatLabel}>当日训练强度</Text>
+                    </Stack>
+                  </Group>
+                </Card>
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Card withBorder padding="md" radius="md">
+                  <Group gap="sm" align="flex-start">
+                    <IconClock size={22} color="var(--mantine-color-grape-6)" />
+                    <Stack gap={4}>
+                      <Text className={styles.modalStatValue}>
+                        {data.trainingCalendar.length} 天
+                      </Text>
+                      <Text className={styles.modalStatLabel}>累计训练天数</Text>
+                    </Stack>
+                  </Group>
+                </Card>
+              </Grid.Col>
+            </Grid>
+
+            {/* 说明 */}
             <Text size="sm" c="dimmed">
-              总训练天数: {data.trainingCalendar.length} 天
+              根据热力图打点记录展示该日强度。建议结合本周训练计划，合理安排强度与恢复。
             </Text>
           </Stack>
         )}
-        {openedModal === 'weight' && data && (
-          <Stack gap="md">
-            <Text>近30天的体重变化趋势，帮助您追踪身体变化。</Text>
-            <Text size="sm" c="dimmed">
-              当前体重: {data.weightTrend[data.weightTrend.length - 1][1]}kg
-            </Text>
-          </Stack>
-        )}
+        {openedModal === 'weight' &&
+          data &&
+          (() => {
+            const weightValues = data.weightTrend.map((item) => item[1])
+            const current = weightValues[weightValues.length - 1]
+            const start = weightValues[0]
+            const min = Math.min(...weightValues)
+            const max = Math.max(...weightValues)
+            const avg =
+              Math.round((weightValues.reduce((a, b) => a + b, 0) / weightValues.length) * 10) / 10
+            const delta = Math.round((current - start) * 10) / 10
+            const deltaPct = start ? Math.round(((current - start) / start) * 1000) / 10 : 0
+            const deltaColor = delta === 0 ? 'gray' : delta > 0 ? 'red' : 'teal'
+            const deltaSign = delta > 0 ? '+' : ''
+
+            return (
+              <Stack gap="md">
+                <Text mb={0}>近30天的体重变化趋势，帮助您追踪身体变化。</Text>
+                <Grid gutter="md">
+                  {/* 第一排：当前体重、最低体重、最高体重 */}
+                  <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                    <Paper withBorder radius="md" p="md" className={styles.modalCard}>
+                      <Text className={styles.modalStatValue}>{current}kg</Text>
+                      <Text className={styles.modalStatLabel}>当前体重</Text>
+                    </Paper>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                    <Paper withBorder radius="md" p="md" className={styles.modalCard}>
+                      <Text className={styles.modalStatValue}>{min}kg</Text>
+                      <Text className={styles.modalStatLabel}>最低体重</Text>
+                    </Paper>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                    <Paper withBorder radius="md" p="md" className={styles.modalCard}>
+                      <Text className={styles.modalStatValue}>{max}kg</Text>
+                      <Text className={styles.modalStatLabel}>最高体重</Text>
+                    </Paper>
+                  </Grid.Col>
+                  {/* 第二排：30天平均、较30天前变化 */}
+                  <Grid.Col span={{ base: 12, sm: 6, md: 6 }}>
+                    <Paper withBorder radius="md" p="md" className={styles.modalCard}>
+                      <Text className={styles.modalStatValue}>{avg}kg</Text>
+                      <Text className={styles.modalStatLabel}>30天平均</Text>
+                    </Paper>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6, md: 6 }}>
+                    <Paper withBorder radius="md" p="md" className={styles.modalCard}>
+                      <Group gap={6}>
+                        <Text className={styles.modalStatValue} c={deltaColor}>
+                          {deltaSign}
+                          {delta}kg
+                        </Text>
+                        <Text size="sm" c={deltaColor}>
+                          ({deltaSign}
+                          {deltaPct}%)
+                        </Text>
+                      </Group>
+                      <Text className={styles.modalStatLabel}>较30天前变化</Text>
+                    </Paper>
+                  </Grid.Col>
+                </Grid>
+                <Text size="sm" c="dimmed">
+                  体重正常波动属于生理现象，建议关注趋势而非单日数据。
+                </Text>
+              </Stack>
+            )
+          })()}
         {openedModal === 'records' && data && (
           <Stack gap="md">
             <Text>您的个人最佳成绩记录，继续努力突破自己！</Text>
-            {data.personalRecords.map((record, index) => (
-              <Group key={index} justify="space-between" p="md" className={styles.recordItem}>
-                <Text fw={500} size="lg">
-                  {record.name}
-                </Text>
-                <Group gap="md">
-                  <Text c="blue" fw={700} size="lg">
-                    {record.value}
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    达成日期: {record.date}
-                  </Text>
+            <div className={`${styles.recordList} ${styles.recordListModal}`}>
+              {data.personalRecords.map((record, index) => (
+                <Group key={index} justify="space-between" p="md" className={styles.recordItem}>
+                  <Group gap="xs">
+                    <Text fw={500} size="lg">
+                      {record.name}
+                    </Text>
+                    <Text span size="lg">
+                      {record.icon}
+                    </Text>
+                  </Group>
+                  <Group gap="md">
+                    <Text c="blue" fw={700} size="lg">
+                      {record.value}
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      达成日期: {record.date}
+                    </Text>
+                  </Group>
                 </Group>
-              </Group>
-            ))}
+              ))}
+            </div>
           </Stack>
         )}
         {openedModal === 'distribution' && data && (
