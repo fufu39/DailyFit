@@ -484,10 +484,10 @@
     ["12-09", 5.4]
   ],
   "exerciseTypeDistribution": [
-    { "name": "力量训练", "value": 45 },
-    { "name": "有氧运动", "value": 25 },
-    { "name": "柔韧性训练", "value": 15 },
-    { "name": "功能性训练", "value": 15 }
+    { "name": "力量训练", "value": 65 },
+    { "name": "有氧运动", "value": 24 },
+    { "name": "柔韧性训练", "value": 13 },
+    { "name": "功能性训练", "value": 16 }
   ],
   "recentTrainingRecords": [
     {

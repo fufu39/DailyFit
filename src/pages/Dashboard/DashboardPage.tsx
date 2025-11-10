@@ -13,6 +13,7 @@ import {
   Modal,
   Box,
   Badge,
+  Progress,
   Select,
   Tooltip,
   Table,
@@ -114,6 +115,25 @@ export default function DashboardPage() {
   const radarChartInstance = useRef<echarts.ECharts | null>(null)
   const weeklyChartInstance = useRef<echarts.ECharts | null>(null)
   const pieChartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 将周起始日期（MM-DD 或 M-D）格式化为范围：MM-DD - MM-DD
+  const formatWeekRange = (startLabel: string) => {
+    try {
+      const [monthStr, dayStr] = startLabel.split('-')
+      const month = Number(monthStr)
+      const day = Number(dayStr)
+      if (Number.isNaN(month) || Number.isNaN(day)) return startLabel
+      const startDate = new Date(selectedYear, month - 1, day)
+      const endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 6)
+      const two = (n: number) => String(n).padStart(2, '0')
+      const startText = `${two(startDate.getMonth() + 1)}-${two(startDate.getDate())}`
+      const endText = `${two(endDate.getMonth() + 1)}-${two(endDate.getDate())}`
+      return `${startText} - ${endText}`
+    } catch {
+      return startLabel
+    }
+  }
 
   // 加载Lottie动画数据
   useEffect(() => {
@@ -482,9 +502,7 @@ export default function DashboardPage() {
         formatter: '{b}: {c} ({d}%)',
       },
       legend: {
-        orient: 'vertical',
-        left: 'left',
-        top: 'middle',
+        show: false,
       },
       series: [
         {
@@ -557,7 +575,7 @@ export default function DashboardPage() {
     // 依据 Mantine 的配色方案调整文字颜色
     const root = document.documentElement
     const isDark = root.getAttribute('data-mantine-color-scheme') === 'dark'
-    const axisNameColor = isDark ? '#e9ecef' : '#fefefe'
+    const axisNameColor = isDark ? '#e9ecef' : '#495057'
 
     const option: EChartsOption = {
       tooltip: {
@@ -575,10 +593,23 @@ export default function DashboardPage() {
           fontSize: 18,
           fontWeight: 700,
         },
+        axisLine: {
+          lineStyle: {
+            color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+          },
+        },
+        splitLine: {
+          lineStyle: {
+            color: isDark ? ['rgba(255,255,255,0.15)'] : ['rgba(0,0,0,0.12)'],
+            width: 1,
+          },
+        },
         splitArea: {
           show: true,
           areaStyle: {
-            color: ['rgba(58, 77, 233, 0.05)', 'rgba(58, 77, 233, 0.1)'],
+            color: isDark
+              ? ['rgba(58, 77, 233, 0.05)', 'rgba(58, 77, 233, 0.1)']
+              : ['rgba(58, 77, 233, 0.03)', 'rgba(58, 77, 233, 0.06)'],
           },
         },
       },
@@ -839,6 +870,17 @@ export default function DashboardPage() {
       },
     },
   }
+
+  // 训练部位分布（模态框用）统计
+  const distributionStats = useMemo(() => {
+    if (!data) return null
+    const sorted = [...data.bodyPartDistribution].sort((a, b) => b.value - a.value)
+    const total = sorted.reduce((sum, i) => sum + i.value, 0) || 1
+    const top = sorted[0]
+    const bottom = sorted[sorted.length - 1]
+    const imbalance = top.value - bottom.value
+    return { sorted, total, top, bottom, imbalance }
+  }, [data])
 
   return (
     <Container
@@ -1517,43 +1559,188 @@ export default function DashboardPage() {
             </div>
           </Stack>
         )}
-        {openedModal === 'distribution' && data && (
-          <Stack gap="md">
-            <Text>各部位训练占比分析，帮助您平衡训练计划。</Text>
-            {data.bodyPartDistribution.map((item, index) => (
-              <Group key={index} justify="space-between" p="sm">
-                <Text fw={500}>{item.name}</Text>
-                <Text c="blue" fw={700}>
-                  {item.value}%
+        {openedModal === 'distribution' && data && distributionStats && (
+          <Stack gap="lg">
+            <Group justify="space-between" align="center">
+              <Text>各部位训练占比分析，帮助您平衡训练计划。</Text>
+              <Badge
+                variant="light"
+                color={
+                  distributionStats.imbalance >= 20
+                    ? 'red'
+                    : distributionStats.imbalance >= 12
+                      ? 'yellow'
+                      : 'teal'
+                }
+              >
+                平衡度 {Math.max(0, 100 - Math.min(distributionStats.imbalance, 40) * 2)} / 100
+              </Badge>
+            </Group>
+
+            <Paper withBorder radius="md" p="md">
+              <Group gap="md" wrap="nowrap">
+                <Badge color="blue" variant="filled">
+                  TOP
+                </Badge>
+                <Text fw={700}>{distributionStats.top.name}</Text>
+                <Text c="blue" fw={800}>
+                  {distributionStats.top.value}%
+                </Text>
+                <Text size="sm" c="dimmed">
+                  占比最高的训练部位
                 </Text>
               </Group>
-            ))}
+            </Paper>
+
+            <Stack gap="sm">
+              {distributionStats.sorted.map((item, idx) => {
+                const pct = Math.round((item.value / distributionStats.total) * 100)
+                return (
+                  <Stack key={item.name} gap={6}>
+                    <Group justify="space-between" align="center">
+                      <Group gap="sm">
+                        <Badge size="sm" variant="light" color="gray">
+                          #{idx + 1}
+                        </Badge>
+                        <Text fw={600}>{item.name}</Text>
+                      </Group>
+                      <Text c="blue" fw={700}>
+                        {item.value}%
+                      </Text>
+                    </Group>
+                    <Progress
+                      value={pct}
+                      color={
+                        idx === 0
+                          ? 'blue'
+                          : idx === distributionStats.sorted.length - 1
+                            ? 'gray'
+                            : 'cyan'
+                      }
+                      size="md"
+                      radius="md"
+                    />
+                  </Stack>
+                )
+              })}
+            </Stack>
+
+            <Text size="sm" c="dimmed">
+              建议：若某单一部位占比过高（与最低项差值 ≥
+              20%），可在接下来两周适当降低该部位的训练频次，
+              增加薄弱部位的练习，以获得更均衡的发展。
+            </Text>
           </Stack>
         )}
         {openedModal === 'weekly' && data && data.weeklyTrainingHours && (
           <Stack gap="md">
-            <Text>每周训练时长统计，帮助您了解训练频率。</Text>
-            {data.weeklyTrainingHours.map((item, index) => (
-              <Group key={index} justify="space-between" p="sm">
-                <Text fw={500}>{item[0]}</Text>
-                <Text c="blue" fw={700}>
-                  {item[1]} 小时
-                </Text>
-              </Group>
-            ))}
+            {(() => {
+              const total = data.weeklyTrainingHours.reduce((sum, i) => sum + i[1], 0)
+              const avg = data.weeklyTrainingHours.length
+                ? total / data.weeklyTrainingHours.length
+                : 0
+              const max = Math.max(...data.weeklyTrainingHours.map((i) => i[1]), 1)
+              return (
+                <>
+                  <Text>每周训练时长统计，帮助您了解训练频率。</Text>
+                  <Group gap="lg">
+                    <Card withBorder padding="md" radius="md">
+                      <Stack gap={4}>
+                        <Text size="xl" fw={800}>
+                          {total.toFixed(1)} 小时
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                          总计（所选区间）
+                        </Text>
+                      </Stack>
+                    </Card>
+                    <Card withBorder padding="md" radius="md">
+                      <Stack gap={4}>
+                        <Text size="xl" fw={800}>
+                          {avg.toFixed(1)} 小时
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                          周均时长
+                        </Text>
+                      </Stack>
+                    </Card>
+                  </Group>
+                  <ScrollArea.Autosize mah={480} type="auto">
+                    <Stack gap="xs">
+                      {data.weeklyTrainingHours.map((item, index) => {
+                        const label = formatWeekRange(item[0])
+                        const value = item[1]
+                        const percent = Math.max(0, Math.min(100, (value / max) * 100))
+                        return (
+                          <Card key={index} withBorder padding="sm" radius="md">
+                            <Stack gap={6}>
+                              <Group justify="space-between">
+                                <Text fw={600}>{label}</Text>
+                                <Text c="blue" fw={800}>
+                                  {value} 小时
+                                </Text>
+                              </Group>
+                              <Progress value={percent} color="blue" radius="sm" />
+                            </Stack>
+                          </Card>
+                        )
+                      })}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                </>
+              )
+            })()}
           </Stack>
         )}
         {openedModal === 'exercise' && data && data.exerciseTypeDistribution && (
           <Stack gap="md">
-            <Text>运动类型分布，展示您的训练偏好。</Text>
-            {data.exerciseTypeDistribution.map((item, index) => (
-              <Group key={index} justify="space-between" p="sm">
-                <Text fw={500}>{item.name}</Text>
-                <Text c="blue" fw={700}>
-                  {item.value} 次
-                </Text>
-              </Group>
-            ))}
+            {(() => {
+              const total = data.exerciseTypeDistribution.reduce((s, i) => s + i.value, 0)
+              const max = Math.max(...data.exerciseTypeDistribution.map((i) => i.value), 1)
+              return (
+                <>
+                  <Text>运动类型分布，展示您的训练偏好。</Text>
+                  <Group gap="lg">
+                    <Card withBorder padding="md" radius="md">
+                      <Stack gap={4}>
+                        <Text size="xl" fw={800}>
+                          {total} 次
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                          总次数（所选区间）
+                        </Text>
+                      </Stack>
+                    </Card>
+                  </Group>
+                  <ScrollArea.Autosize mah={480} type="auto">
+                    <Stack gap="xs">
+                      {data.exerciseTypeDistribution.map((item, index) => {
+                        const percent = total ? Math.round((item.value / total) * 100) : 0
+                        const barPercent = Math.max(0, Math.min(100, (item.value / max) * 100))
+                        return (
+                          <Card key={index} withBorder padding="sm" radius="md">
+                            <Stack gap={6}>
+                              <Group justify="space-between">
+                                <Text fw={600}>
+                                  {item.name}
+                                  <Text span c="dimmed" ml="xs">
+                                    {percent}%
+                                  </Text>
+                                </Text>
+                                <Text c="blue" fw={800}>
+                                  {item.value} 次
+                                </Text>
+                              </Group>
+                              <Progress value={barPercent} color="blue" radius="sm" />
+                            </Stack>
+                          </Card>
+                        )
+                      })}
+                    </Stack>
+                  </ScrollArea.Autosize>
+                </>
+              )
+            })()}
           </Stack>
         )}
         {openedModal === 'trainingRecords' && data && data.recentTrainingRecords && (
