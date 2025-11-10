@@ -1,6 +1,5 @@
 // 仪表盘数据控制器
-// 负责从 JSON 文件读取和返回仪表盘所需的各种统计数据
-
+// 负责从JSON文件读取和返回仪表盘所需的各种统计数据
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'

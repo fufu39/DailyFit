@@ -1,26 +1,21 @@
 .dashboardContainer {
-  padding: 2rem 0;
+  padding: 10px 5px;
   height: 100%;
   position: relative;
-  overflow-y: auto; /* 组件内滚动 */
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
-/* Loading 状态：隐藏滚动条，固定高度，确保垂直居中 */
+/* Loading状态：隐藏滚动条，固定高度，确保垂直居中 */
 .loading {
   overflow: hidden !important;
-  height: calc(100vh - 75px - 3rem) !important;
-  min-height: calc(100vh - 75px - 3rem) !important;
-  max-height: calc(100vh - 75px - 3rem) !important;
+  height: calc(100vh - 75px - 48px) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.pageTitle {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-}
-
-/* Lottie 加载动画覆盖层（只在容器内） */
+/* Lottie加载动画覆盖层 */
 .lottieOverlay {
   position: absolute;
   top: 0;
@@ -35,8 +30,8 @@
 }
 
 .lottieContainer {
-  width: 400px;
-  height: 400px;
+  width: 500px;
+  height: 500px;
   max-width: 90vw;
   max-height: 90vh;
 }
@@ -168,11 +163,14 @@
   position: relative;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  will-change: transform, border;
 }
 
 .heatmapDay:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  border-color: rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--mantine-color-blue-6);
+  transform: scale(1.15);
+  z-index: 10;
 }
 
 /* 数据表格样式 */

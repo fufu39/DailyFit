@@ -98,7 +98,9 @@ export const login = async (req, res) => {
     const users = await readUsers()
 
     // 查找用户
-    const user = users.find((u) => u.username === validation.username && u.password === validation.password)
+    const user = users.find(
+      (u) => u.username === validation.username && u.password === validation.password
+    )
 
     if (!user) {
       return res.status(401).json({

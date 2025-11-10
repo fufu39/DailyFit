@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   AppShell,
@@ -65,6 +65,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [isAnimating, setIsAnimating] = useState(false)
   // 记录动画的目标主题（切换后的主题）
   const [targetTheme, setTargetTheme] = useState<'light' | 'dark' | null>(null)
+  const mainRef = useRef<HTMLDivElement | null>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
 
   // 导航处理函数
   const handleNavClick = (path: string) => {
@@ -80,6 +82,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
     document.documentElement.setAttribute('data-mantine-color-scheme', colorScheme)
     document.body.setAttribute('data-mantine-color-scheme', colorScheme)
   }, [colorScheme])
+
+  // 路由切换时重置主内容区域的滚动位置
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, left: 0 })
+    }
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0
+    }
+    window.scrollTo({ top: 0, left: 0 })
+  }, [location.pathname])
 
   // 主题切换处理函数
   const handleThemeToggle = () => {
@@ -271,8 +284,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </AppShell.Navbar>
 
         {/* AppShell.Main (主内容区域) */}
-        <AppShell.Main className={styles.main}>
-          <Box className={styles.content}>{children}</Box>
+        <AppShell.Main ref={mainRef} className={styles.main}>
+          <Box ref={contentRef} className={styles.content}>
+            {children}
+          </Box>
         </AppShell.Main>
       </AppShell>
     </>

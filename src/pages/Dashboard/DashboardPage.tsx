@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Container,
@@ -40,7 +40,7 @@ import styles from './DashboardPage.module.css'
 // Lottie 加载动画 URL（旋转加载动画）
 const LOTTIE_LOADING_URL = 'https://assets5.lottiefiles.com/packages/lf20_jcikwtux.json'
 
-// 数据类型定义
+// 接口数据类型定义
 interface DashboardData {
   trainingCalendar: Array<[string, number]>
   weightTrend: Array<[string, number]>
@@ -79,7 +79,7 @@ interface DashboardData {
   }>
 }
 
-// Lottie 动画数据类型
+// Lottie动画数据类型
 interface LottieAnimationData {
   v: string
   fr: number
@@ -103,10 +103,9 @@ export default function DashboardPage() {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedDateData, setSelectedDateData] = useState<number | null>(null)
-  const [hoveredDate, setHoveredDate] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState<boolean>(false)
 
-  // ECharts 实例引用
+  // ECharts实例引用
   const weightChartRef = useRef<HTMLDivElement>(null)
   const radarChartRef = useRef<HTMLDivElement>(null)
   const weeklyChartRef = useRef<HTMLDivElement>(null)
@@ -116,7 +115,7 @@ export default function DashboardPage() {
   const weeklyChartInstance = useRef<echarts.ECharts | null>(null)
   const pieChartInstance = useRef<echarts.ECharts | null>(null)
 
-  // 加载 Lottie 动画数据
+  // 加载Lottie动画数据
   useEffect(() => {
     const loadLottie = async () => {
       try {
@@ -137,28 +136,13 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-
-        // 首次加载添加 0.5s 延迟
-        if (isFirstLoad) {
-          await new Promise((resolve) => setTimeout(resolve, 500))
-        }
-
         const response = await axiosInstance.get<{ success: boolean; data: DashboardData }>(
           '/dashboard'
         )
+        console.log('仪表盘数据：', response.data.data)
 
         if (response.data.success) {
           setData(response.data.data)
-
-          // 首次加载后，延迟隐藏 Lottie 动画
-          if (isFirstLoad) {
-            setTimeout(() => {
-              setShowLottie(false)
-              setIsFirstLoad(false)
-            }, 800)
-          } else {
-            setIsFirstLoad(false)
-          }
         }
       } catch (error) {
         console.error('获取仪表盘数据失败:', error)
@@ -168,10 +152,9 @@ export default function DashboardPage() {
     }
 
     fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 检测窗口大小（用于响应式月份标签计算）
+  // 检测窗口大小，判断是否为移动端
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768)
@@ -193,8 +176,31 @@ export default function DashboardPage() {
     }
   }, [showLottie, isFirstLoad])
 
+  // 控制首次加载时的 Lottie 动画显示与淡出
+  useEffect(() => {
+    if (!isFirstLoad) return
+
+    if (!isLoading) {
+      let exitTimeout: number | null = null
+      const timeout = window.setTimeout(() => {
+        setShowLottie(false)
+        exitTimeout = window.setTimeout(() => {
+          setIsFirstLoad(false)
+        }, 300)
+      }, 1500)
+      return () => {
+        window.clearTimeout(timeout)
+        if (exitTimeout !== null) {
+          window.clearTimeout(exitTimeout)
+        }
+      }
+    }
+
+    setShowLottie(true)
+  }, [isLoading, isFirstLoad])
+
   // 获取指定年份的训练数据
-  const getYearTrainingData = () => {
+  const yearTrainingData = useMemo(() => {
     if (!data) return {}
     const dataMap: Record<string, number> = {}
 
@@ -204,25 +210,13 @@ export default function DashboardPage() {
         dataMap[date] = value
       }
     })
+    console.log('dataMap：', dataMap)
 
     return dataMap
-  }
+  }, [data, selectedYear])
 
-  // 处理日期点击
-  const handleDateClick = (date: string) => {
-    const yearData = getYearTrainingData()
-    const value = yearData[date]
-    if (value !== undefined) {
-      setSelectedDate(date)
-      setSelectedDateData(value)
-      setOpenedModal('calendar')
-    }
-  }
-
-  // 生成 GitHub 风格的热力图数据
-  const generateHeatmapData = () => {
+  const heatmapWeeks = useMemo(() => {
     if (!data) return []
-    const yearData = getYearTrainingData()
 
     // 获取年份的第一天和最后一天
     const startDate = new Date(selectedYear, 0, 1)
@@ -236,11 +230,13 @@ export default function DashboardPage() {
     const currentDate = new Date(startDate)
 
     while (currentDate <= endDate) {
-      const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`
+      const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(
+        currentDate.getDate()
+      ).padStart(2, '0')}`
       days.push({
         date: new Date(currentDate),
         dateString,
-        value: yearData[dateString] ?? null,
+        value: yearTrainingData[dateString] ?? null,
       })
       currentDate.setDate(currentDate.getDate() + 1)
     }
@@ -280,6 +276,16 @@ export default function DashboardPage() {
     }
 
     return weeks
+  }, [data, selectedYear, yearTrainingData])
+
+  // 处理日期点击
+  const handleDateClick = (date: string) => {
+    const value = yearTrainingData[date]
+    if (value !== undefined) {
+      setSelectedDate(date)
+      setSelectedDateData(value)
+      setOpenedModal('calendar')
+    }
   }
 
   // 初始化体重趋势图表
@@ -619,7 +625,7 @@ export default function DashboardPage() {
   const renderHeatmapCalendar = () => {
     if (!data) return null
 
-    const weeks = generateHeatmapData()
+    const weeks = heatmapWeeks
     const monthLabels = [
       '1月',
       '2月',
@@ -784,8 +790,6 @@ export default function DashboardPage() {
                   const hasData = day.value !== null
                   const intensity = day.value ?? 0
                   const bgColor = getIntensityColor(intensity)
-                  const isHovered = hoveredDate === day.dateString
-
                   return (
                     <Tooltip
                       key={day.dateString}
@@ -802,15 +806,8 @@ export default function DashboardPage() {
                         style={{
                           backgroundColor: bgColor,
                           cursor: hasData ? 'pointer' : 'default',
-                          border: isHovered
-                            ? '2px solid var(--mantine-color-blue-6)'
-                            : '1px solid rgba(0,0,0,0.05)',
-                          transform: isHovered ? 'scale(1.15)' : 'scale(1)',
-                          zIndex: isHovered ? 10 : 1,
                         }}
                         onClick={() => hasData && handleDateClick(day.dateString)}
-                        onMouseEnter={() => setHoveredDate(day.dateString)}
-                        onMouseLeave={() => setHoveredDate(null)}
                       />
                     </Tooltip>
                   )
@@ -863,12 +860,13 @@ export default function DashboardPage() {
       size="xl"
       className={`${styles.dashboardContainer} ${showLottie && isFirstLoad ? styles.loading : ''}`}
     >
-      {/* Lottie 加载动画 - 首次加载时显示（只在容器内） */}
+      {/* Lottie加载动画：首次加载时显示 */}
       <AnimatePresence>
         {showLottie && isFirstLoad && lottieData && (
           <motion.div
             className={styles.lottieOverlay}
-            initial={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
@@ -885,9 +883,9 @@ export default function DashboardPage() {
         animate={{ opacity: showLottie && isFirstLoad ? 0 : 1 }}
         transition={{ duration: 0.5, delay: showLottie && isFirstLoad ? 0.3 : 0 }}
       >
-        <Title order={1} mb="xl" className={styles.pageTitle}>
+        {/* <Title order={1} mb="xl" className={styles.pageTitle}>
           仪表盘
-        </Title>
+        </Title> */}
 
         {isLoading && !data ? (
           // 骨架屏 - 显示8个卡片
