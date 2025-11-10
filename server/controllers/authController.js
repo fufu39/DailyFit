@@ -194,3 +194,102 @@ export const verifyToken = async (req, res) => {
     })
   }
 }
+
+// 从 Authorization 头解析并返回用户（若无效则返回对应的错误响应）
+const getUserFromRequest = async (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
+    res.status(401).json({ success: false, message: '未提供token' })
+    return null
+  }
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
+  const tokenParts = token.split('_')
+  if (tokenParts.length !== 3 || tokenParts[0] !== 'token') {
+    res.status(401).json({ success: false, message: '无效的token格式' })
+    return null
+  }
+  const userId = parseInt(tokenParts[1], 10)
+  if (isNaN(userId) || userId <= 0) {
+    res.status(401).json({ success: false, message: '无效的token' })
+    return null
+  }
+  const users = await readUsers()
+  const user = users.find((u) => u.id === userId)
+  if (!user) {
+    res.status(401).json({ success: false, message: '用户不存在' })
+    return null
+  }
+  return { users, user }
+}
+
+// 获取当前用户资料
+export const getProfile = async (req, res) => {
+  try {
+    const result = await getUserFromRequest(req, res)
+    if (!result) return
+    const { user } = result
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    const { password: _, ...userWithoutPassword } = user
+    res.json({
+      success: true,
+      data: { user: userWithoutPassword },
+    })
+  } catch (error) {
+    console.error('获取用户资料错误:', error)
+    res.status(500).json({ success: false, message: '服务器内部错误' })
+  }
+}
+
+// 更新当前用户资料（name、email、修改密码）
+export const updateProfile = async (req, res) => {
+  try {
+    const result = await getUserFromRequest(req, res)
+    if (!result) return
+    const { users, user } = result
+
+    const { name, email, currentPassword, newPassword } = req.body || {}
+
+    // 基础校验
+    const cleanName = typeof name === 'string' ? name.trim() : ''
+    const cleanEmail = typeof email === 'string' ? email.trim() : ''
+    if (!cleanName || !cleanEmail) {
+      return res.status(400).json({ success: false, message: '姓名和邮箱不能为空' })
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return res.status(400).json({ success: false, message: '邮箱格式不正确' })
+    }
+
+    // 如果要修改密码，需要提供 currentPassword 与 newPassword
+    if ((currentPassword || newPassword) && (!currentPassword || !newPassword)) {
+      return res.status(400).json({ success: false, message: '修改密码需同时提供当前密码与新密码' })
+    }
+    if (currentPassword && currentPassword !== user.password) {
+      return res.status(400).json({ success: false, message: '当前密码不正确' })
+    }
+    if (newPassword && (typeof newPassword !== 'string' || newPassword.trim().length < 1)) {
+      return res.status(400).json({ success: false, message: '新密码不能为空' })
+    }
+
+    // 更新信息
+    user.name = cleanName
+    user.email = cleanEmail
+    if (newPassword) {
+      user.password = newPassword.trim()
+    }
+
+    // 写回文件
+    await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8')
+
+    // 返回去除密码后的用户信息
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    const { password: _, ...userWithoutPassword } = user
+    res.json({
+      success: true,
+      message: '资料已更新',
+      data: { user: userWithoutPassword },
+    })
+  } catch (error) {
+    console.error('更新用户资料错误:', error)
+    res.status(500).json({ success: false, message: '服务器内部错误' })
+  }
+}

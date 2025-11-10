@@ -16,6 +16,8 @@ setupMiddleware(app) // 配置中间件
 // 注册API路由
 app.post('/api/login', authRoutes.login)
 app.get('/api/auth/verify', authRoutes.verifyToken)
+app.get('/api/profile', authRoutes.getProfile)
+app.put('/api/profile', authRoutes.updateProfile)
 app.get('/api/dashboard', dashboardRoutes.getDashboard)
 
 // 健康检查端点

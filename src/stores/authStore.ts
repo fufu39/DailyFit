@@ -14,6 +14,7 @@ interface AuthState {
   token: string | null // 登录token
   isAuthenticated: boolean // 是否已登录
   login: (user: User, token: string) => void // 登录方法
+  updateUser: (user: User) => void // 更新用户资料
   logout: () => void // 登出方法
 }
 
@@ -32,6 +33,13 @@ export const useAuthStore = create<AuthState>()(
           token,
           isAuthenticated: true,
         })
+      },
+      // 更新用户资料
+      updateUser: (user) => {
+        set((state) => ({
+          ...state,
+          user,
+        }))
       },
       // 登出方法
       logout: () => {

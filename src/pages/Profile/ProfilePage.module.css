@@ -1,0 +1,269 @@
+/* 页面容器：在路由内容区域内保持视觉卡片效果 */
+.page {
+  /* 保留与布局间的顶部空间，同时确保内容区域视觉铺满。 */
+  min-height: calc(
+    100vh - 75px - (var(--mantine-spacing-md) * 2) - (var(--mantine-spacing-lg) * 2)
+  );
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 25px var(--mantine-spacing-xl);
+  box-sizing: border-box;
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+
+  /* 背景：蓝色主题的轻微渐变与光斑，弱化干扰、增强层次 */
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(25, 113, 194, 0.08), transparent 60%),
+    radial-gradient(1200px 600px at 110% 110%, rgba(37, 99, 235, 0.06), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.96));
+}
+
+/* 暗黑模式：更深的基底与更弱的光斑，避免眩光 */
+[data-mantine-color-scheme='dark'] .page {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(25, 113, 194, 0.12), transparent 60%),
+    radial-gradient(1200px 600px at 110% 110%, rgba(37, 99, 235, 0.1), transparent 60%),
+    linear-gradient(180deg, rgba(22, 27, 34, 0.96), rgba(22, 27, 34, 0.96));
+}
+
+/* 装饰性网格与光晕：提升页面识别度（不影响内容交互） */
+.page::before,
+.page::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+.page::before {
+  top: -120px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  background:
+    radial-gradient(closest-side, rgba(37, 99, 235, 0.12), transparent 70%),
+    conic-gradient(from 0deg at 50% 50%, rgba(25, 113, 194, 0.08), transparent 40%);
+  filter: blur(8px);
+  border-radius: 50%;
+}
+.page::after {
+  left: -160px;
+  bottom: -160px;
+  width: 520px;
+  height: 520px;
+  background:
+    radial-gradient(closest-side, rgba(56, 189, 248, 0.1), transparent 70%),
+    conic-gradient(from 90deg at 50% 50%, rgba(59, 130, 246, 0.08), transparent 40%);
+  filter: blur(10px);
+  border-radius: 50%;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+/* 暗黑模式下的光晕弱化，减少干扰 */
+[data-mantine-color-scheme='dark'] .page::before {
+  background:
+    radial-gradient(closest-side, rgba(59, 130, 246, 0.1), transparent 70%),
+    conic-gradient(from 0deg at 50% 50%, rgba(59, 130, 246, 0.08), transparent 40%);
+  filter: blur(6px);
+}
+[data-mantine-color-scheme='dark'] .page::after {
+  background:
+    radial-gradient(closest-side, rgba(56, 189, 248, 0.08), transparent 70%),
+    conic-gradient(from 90deg at 50% 50%, rgba(56, 189, 248, 0.06), transparent 40%);
+  filter: blur(8px);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  margin-bottom: 10px;
+  z-index: 1;
+}
+
+.avatar {
+  /* 头像投影：微蓝色调，贴合主题 */
+  box-shadow:
+    0 4px 14px rgba(25, 113, 194, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 2px solid var(--mantine-color-blue-2);
+  background: linear-gradient(180deg, var(--mantine-color-blue-0), #fff);
+}
+
+[data-mantine-color-scheme='dark'] .avatar {
+  border-color: var(--mantine-color-dark-4);
+  background: linear-gradient(180deg, var(--mantine-color-dark-6), var(--mantine-color-dark-7));
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.titleWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.subtitle {
+  /* 次要文字颜色 */
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+/* 标题渐变与下划线强调 */
+.titleWrap :global(h3) {
+  background: linear-gradient(135deg, var(--mantine-color-blue-8), var(--mantine-color-cyan-6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.titleWrap :global(h3)::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5));
+}
+
+.card {
+  margin-top: 12px;
+  border-radius: 12px;
+  /* 卡片投影与边框：蓝色主题的轻投影 */
+  border: 1px solid var(--mantine-color-gray-3);
+  box-shadow:
+    0 10px 24px rgba(25, 113, 194, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: saturate(120%) blur(2px);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  /* 顶部高光条，提高质感 */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.1), transparent 40%);
+  pointer-events: none;
+}
+
+[data-mantine-color-scheme='dark'] .card {
+  border-color: var(--mantine-color-dark-4);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+}
+[data-mantine-color-scheme='dark'] .card::before {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.08), transparent 40%);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* 输入框风格（只影响当前页面表单） */
+.card :global(input) {
+  transition: all 0.2s ease;
+  background: linear-gradient(0deg, #fff, #fff);
+  border-color: var(--mantine-color-gray-3);
+}
+.card :global(input:focus) {
+  border-color: var(--mantine-color-blue-5);
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.15),
+    0 8px 18px rgba(25, 113, 194, 0.08) inset;
+}
+.card :global(label) {
+  font-weight: 600;
+  color: var(--mantine-color-blue-7);
+}
+
+[data-mantine-color-scheme='dark'] .card :global(input) {
+  background: linear-gradient(0deg, var(--mantine-color-dark-6), var(--mantine-color-dark-6));
+  border-color: var(--mantine-color-dark-4);
+  color: var(--mantine-color-gray-0);
+}
+[data-mantine-color-scheme='dark'] .card :global(input::placeholder) {
+  color: var(--mantine-color-dark-1);
+}
+[data-mantine-color-scheme='dark'] .card :global(label) {
+  color: var(--mantine-color-gray-2);
+}
+
+/* 分隔线强调 */
+:global(.mantine-Divider-label) {
+  color: var(--mantine-color-blue-7);
+}
+
+[data-mantine-color-scheme='dark'] :global(.mantine-Divider-label) {
+  color: var(--mantine-color-gray-2);
+}
+
+/* 提交按钮的渐变与动效 */
+.actions :global(button) {
+  background-image: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-6),
+    var(--mantine-color-cyan-6)
+  );
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+}
+.actions :global(button:hover) {
+  transform: translateY(-1px);
+  filter: saturate(110%);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+}
+.actions :global(button:disabled) {
+  filter: grayscale(20%);
+  box-shadow: none;
+}
+
+/* 768px 及以下的响应式处理 */
+@media (max-width: 768px) {
+  .page {
+    padding: 48px var(--mantine-spacing-md) 16px;
+  }
+  /* 移动端弱化装饰光晕，提升性能与可读性 */
+  .page::before,
+  .page::after {
+    opacity: 0.35;
+    filter: blur(6px);
+  }
+  .headerRow {
+    gap: 12px;
+  }
+  .actions {
+    justify-content: stretch;
+  }
+  .actions :global(button) {
+    width: 100%;
+  }
+  /* 表单中的横向分组在小屏改为纵向堆叠 */
+  .form :global(.mantine-Group-root) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .form :global(.mantine-Group-root) > div {
+    min-width: 100%;
+  }
+}

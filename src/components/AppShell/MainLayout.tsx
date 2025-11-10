@@ -208,7 +208,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         radius="xl"
                         color={user ? 'blue' : undefined}
                       >
-                        {user ? displayUser.name.charAt(0).toUpperCase() : null}
+                        {user ? displayUser.name.slice(0, 2).toUpperCase() : null}
                       </Avatar>
                       {/* 用户名和邮箱：仅在大屏幕 (>='sm') 显示 */}
                       <Box style={{ flex: 1 }} visibleFrom="sm">
