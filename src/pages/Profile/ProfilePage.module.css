@@ -1,6 +1,5 @@
-/* 页面容器：在路由内容区域内保持视觉卡片效果 */
+/* 页面容器 */
 .page {
-  /* 保留与布局间的顶部空间，同时确保内容区域视觉铺满。 */
   min-height: calc(
     100vh - 75px - (var(--mantine-spacing-md) * 2) - (var(--mantine-spacing-lg) * 2)
   );
@@ -114,7 +113,7 @@
 .subtitle {
   /* 次要文字颜色 */
   color: var(--mantine-color-dimmed);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* 标题渐变与下划线强调 */
@@ -127,7 +126,7 @@
 .titleWrap :global(h3)::after {
   content: '';
   display: block;
-  width: 56px;
+  width: 70%;
   height: 3px;
   margin-top: 6px;
   border-radius: 999px;

@@ -14,7 +14,7 @@ import {
 } from '@mantine/core'
 import { useForm } from 'react-hook-form'
 import { notifications } from '@mantine/notifications'
-import { IconCheck, IconUser, IconAt, IconKey } from '@tabler/icons-react'
+import { IconCheck, IconUser, IconAt, IconKey, IconExclamationMark } from '@tabler/icons-react'
 import request from '../../utils/request'
 import { useAuthStore } from '../../stores/authStore'
 import styles from './ProfilePage.module.css'
@@ -34,6 +34,7 @@ export default function ProfilePage() {
   const initials = useMemo(() => {
     if (!user?.name) return 'U'
     const str = user.name.trim()
+    // 截取前两位字符作为用户头像
     return str.slice(0, 2).toUpperCase()
   }, [user?.name])
 
@@ -87,13 +88,31 @@ export default function ProfilePage() {
   }, [user?.username, user?.name, user?.email, reset])
 
   const onSubmit = async (data: ProfileForm) => {
+    // 检查当前密码和新密码是否相同
+    const trimmedCurrentPassword = data.currentPassword?.trim()
+    const trimmedNewPassword = data.newPassword?.trim()
+
+    if (
+      trimmedCurrentPassword &&
+      trimmedNewPassword &&
+      trimmedCurrentPassword === trimmedNewPassword
+    ) {
+      notifications.show({
+        title: '提示',
+        message: '新密码不能与当前密码相同',
+        icon: <IconExclamationMark size={20} />,
+        color: 'yellow',
+      })
+      return
+    }
+
     setLoading(true)
     try {
       const payload = {
         name: data.name.trim(),
         email: data.email.trim(),
-        currentPassword: data.currentPassword?.trim() || undefined,
-        newPassword: data.newPassword?.trim() || undefined,
+        currentPassword: trimmedCurrentPassword || undefined,
+        newPassword: trimmedNewPassword || undefined,
       }
       const res = await request.put('/profile', payload)
       if (res.data?.success) {
@@ -131,7 +150,7 @@ export default function ProfilePage() {
             </Avatar>
             <Box className={styles.titleWrap}>
               <Title order={3}>个人资料</Title>
-              <Text className={styles.subtitle}>查看与更新你的账户信息</Text>
+              <Text className={styles.subtitle}>查看与更新你的个人资料</Text>
             </Box>
           </Group>
 
@@ -165,7 +184,7 @@ export default function ProfilePage() {
                   error={errors.email?.message}
                 />
 
-                <Divider label="修改密码（可选）" labelPosition="left" />
+                <Divider label="修改密码" labelPosition="left" />
 
                 <Group grow>
                   <TextInput
