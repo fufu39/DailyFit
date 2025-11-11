@@ -1,5 +1,63 @@
 [
   {
+    "id": "lg_1762882537260_2ufhuf",
+    "date": "2025-11-12",
+    "type": "strength",
+    "strengthItems": [
+      {
+        "id": "bej5q3mi9jo",
+        "name": "",
+        "sets": 3,
+        "reps": 10,
+        "weight": 0
+      }
+    ],
+    "createdAt": 1762882537260
+  },
+  {
+    "id": "lg_1762882536202_dorbmi",
+    "date": "2025-11-12",
+    "type": "strength",
+    "strengthItems": [
+      {
+        "id": "t9tye2bo79",
+        "name": "",
+        "sets": 3,
+        "reps": 10,
+        "weight": 0
+      }
+    ],
+    "createdAt": 1762882536202
+  },
+  {
+    "id": "lg_1762882534848_xa5rs9",
+    "date": "2025-11-12",
+    "type": "strength",
+    "strengthItems": [
+      {
+        "id": "ygzc6699xp",
+        "name": "",
+        "sets": 3,
+        "reps": 10,
+        "weight": 0
+      }
+    ],
+    "createdAt": 1762882534848
+  },
+  {
+    "id": "lg_1762882221851_7u8co6",
+    "date": "2025-11-12",
+    "type": "functional",
+    "functionalItems": [
+      {
+        "id": "cwbcvc9spto",
+        "activity": "",
+        "durationMinutes": 20
+      }
+    ],
+    "createdAt": 1762882221851
+  },
+  {
     "id": "lg_1762876235337_gz3e8m",
     "date": "2025-11-11",
     "type": "strength",

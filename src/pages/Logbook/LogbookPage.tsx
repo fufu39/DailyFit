@@ -231,7 +231,7 @@ export default function LogbookPage() {
             <Text fw={700} size="lg" className={classes.title}>
               记录训练
             </Text>
-            <Group gap="sm" align="center" wrap="nowrap">
+            <Group gap="lg" align="center" wrap="nowrap">
               <Controller
                 control={control}
                 name="date"
@@ -305,55 +305,71 @@ export default function LogbookPage() {
                     variants={rowVariants}
                     transition={{ duration: 0.2 }}
                   >
-                    <Group align="flex-end" wrap="wrap" className={classes.formRow}>
-                      <TextInput
-                        label="项目名称"
-                        placeholder="卧推/深蹲/硬拉等"
-                        size="sm"
-                        style={{ flex: 2, minWidth: 200 }}
-                        {...register(`strengthItems.${idx}.name` as const)}
-                      />
+                    <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
+                      <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
+                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                          项目名称
+                        </Text>
+                        <TextInput
+                          placeholder="卧推/深蹲/硬拉等"
+                          size="sm"
+                          style={{ flex: 1 }}
+                          {...register(`strengthItems.${idx}.name` as const)}
+                        />
+                      </Group>
                       <Controller
                         control={control}
                         name={`strengthItems.${idx}.sets`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="组数"
-                            min={1}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 100 : 120 }}
-                            value={field.value}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              组数
+                            </Text>
+                            <NumberInput
+                              min={1}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 80 : 100 }}
+                              value={field.value}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Controller
                         control={control}
                         name={`strengthItems.${idx}.reps`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="次数"
-                            min={1}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 100 : 120 }}
-                            value={field.value}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              次数
+                            </Text>
+                            <NumberInput
+                              min={1}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 80 : 100 }}
+                              value={field.value}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Controller
                         control={control}
                         name={`strengthItems.${idx}.weight`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="重量(kg)"
-                            min={0}
-                            step={2.5}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 120 : 140 }}
-                            value={field.value}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              重量(kg)
+                            </Text>
+                            <NumberInput
+                              min={0}
+                              step={2.5}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 100 : 120 }}
+                              value={field.value}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Button
@@ -395,41 +411,53 @@ export default function LogbookPage() {
                     variants={rowVariants}
                     transition={{ duration: 0.2 }}
                   >
-                    <Group align="flex-end" wrap="wrap" className={classes.formRow}>
-                      <TextInput
-                        label="活动"
-                        placeholder="跑步/骑行/划船等"
-                        size="sm"
-                        style={{ flex: 2, minWidth: 200 }}
-                        {...register(`cardioItems.${idx}.activity` as const)}
-                      />
+                    <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
+                      <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
+                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                          活动
+                        </Text>
+                        <TextInput
+                          placeholder="跑步/骑行/划船等"
+                          size="sm"
+                          style={{ flex: 1 }}
+                          {...register(`cardioItems.${idx}.activity` as const)}
+                        />
+                      </Group>
                       <Controller
                         control={control}
                         name={`cardioItems.${idx}.durationMinutes`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="时长(分钟)"
-                            min={1}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 130 : 160 }}
-                            value={field.value}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              时长(分钟)
+                            </Text>
+                            <NumberInput
+                              min={1}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 100 : 120 }}
+                              value={field.value}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Controller
                         control={control}
                         name={`cardioItems.${idx}.distanceKm`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="距离(km)"
-                            min={0}
-                            step={0.1}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 130 : 160 }}
-                            value={field.value ?? 0}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              距离(km)
+                            </Text>
+                            <NumberInput
+                              min={0}
+                              step={0.1}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 100 : 120 }}
+                              value={field.value ?? 0}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Button
@@ -471,26 +499,34 @@ export default function LogbookPage() {
                     variants={rowVariants}
                     transition={{ duration: 0.2 }}
                   >
-                    <Group align="flex-end" wrap="wrap" className={classes.formRow}>
-                      <TextInput
-                        label="项目"
-                        placeholder="核心/平衡/爆发等"
-                        size="sm"
-                        style={{ flex: 2, minWidth: 200 }}
-                        {...register(`functionalItems.${idx}.activity` as const)}
-                      />
+                    <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
+                      <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
+                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                          项目
+                        </Text>
+                        <TextInput
+                          placeholder="核心/平衡/爆发等"
+                          size="sm"
+                          style={{ flex: 1 }}
+                          {...register(`functionalItems.${idx}.activity` as const)}
+                        />
+                      </Group>
                       <Controller
                         control={control}
                         name={`functionalItems.${idx}.durationMinutes`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="时长(分钟)"
-                            min={1}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 130 : 160 }}
-                            value={field.value}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              时长(分钟)
+                            </Text>
+                            <NumberInput
+                              min={1}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 100 : 120 }}
+                              value={field.value}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Button
@@ -532,26 +568,34 @@ export default function LogbookPage() {
                     variants={rowVariants}
                     transition={{ duration: 0.2 }}
                   >
-                    <Group align="flex-end" wrap="wrap" className={classes.formRow}>
-                      <TextInput
-                        label="项目"
-                        placeholder="静态拉伸/动态拉伸/瑜伽等"
-                        size="sm"
-                        style={{ flex: 2, minWidth: 200 }}
-                        {...register(`flexibilityItems.${idx}.activity` as const)}
-                      />
+                    <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
+                      <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
+                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                          项目
+                        </Text>
+                        <TextInput
+                          placeholder="静态拉伸/动态拉伸/瑜伽等"
+                          size="sm"
+                          style={{ flex: 1 }}
+                          {...register(`flexibilityItems.${idx}.activity` as const)}
+                        />
+                      </Group>
                       <Controller
                         control={control}
                         name={`flexibilityItems.${idx}.durationMinutes`}
                         render={({ field }) => (
-                          <NumberInput
-                            label="时长(分钟)"
-                            min={1}
-                            size={isTablet ? 'xs' : 'sm'}
-                            style={{ width: isTablet ? 130 : 160 }}
-                            value={field.value}
-                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
-                          />
+                          <Group align="center" gap="xs">
+                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                              时长(分钟)
+                            </Text>
+                            <NumberInput
+                              min={1}
+                              size={isTablet ? 'xs' : 'sm'}
+                              style={{ width: isTablet ? 100 : 120 }}
+                              value={field.value}
+                              onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                            />
+                          </Group>
                         )}
                       />
                       <Button
@@ -572,7 +616,7 @@ export default function LogbookPage() {
           )}
 
           <Group justify="flex-end">
-            <Button loading={isSubmitting} onClick={onSubmit} size="md" radius="md">
+            <Button loading={isSubmitting} onClick={onSubmit} size="sm" radius="sm">
               保存训练
             </Button>
           </Group>

@@ -1,9 +1,7 @@
-/* Page container spacing helpers */
 .container {
   gap: 24px;
 }
 
-/* Cards */
 .card {
   border-radius: 14px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
@@ -18,7 +16,6 @@
   letter-spacing: 0.3px;
 }
 
-/* Controls */
 .typeControl {
   background: var(--mantine-color-gray-1);
   border-radius: 999px;
@@ -38,8 +35,9 @@
 .formRow {
   border: 1px solid var(--mantine-color-gray-3);
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px 16px;
   background: var(--mantine-color-body);
+  gap: 12px;
 }
 
 .addButton {
@@ -129,8 +127,8 @@
     width: 100px;
   }
   .formRow {
-    padding: 10px;
-    gap: 8px;
+    padding: 12px;
+    gap: 10px;
   }
   /* Make inputs within row flex nicely on tablet */
   .formRow :global(.mantine-Input-wrapper) {
@@ -141,7 +139,8 @@
 
 @media (max-width: 640px) {
   .formRow {
-    padding: 10px;
+    padding: 12px;
+    gap: 8px;
   }
   .opsCol {
     width: 110px;

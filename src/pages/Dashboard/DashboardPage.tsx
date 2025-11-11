@@ -230,7 +230,6 @@ export default function DashboardPage() {
         dataMap[date] = value
       }
     })
-    console.log('dataMap：', dataMap)
 
     return dataMap
   }, [data, selectedYear])
