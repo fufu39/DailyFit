@@ -1,0 +1,164 @@
+/* Page container spacing helpers */
+.container {
+  gap: 24px;
+}
+
+/* Cards */
+.card {
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.cardHeader {
+  padding-bottom: 6px;
+}
+
+.title {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Controls */
+.typeControl {
+  background: var(--mantine-color-gray-1);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.dateRow {
+  align-items: center;
+}
+
+.divider {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+/* Form rows */
+.formRow {
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--mantine-color-body);
+}
+
+.addButton {
+  border-radius: 999px;
+}
+
+.deleteButton {
+  color: var(--mantine-color-red-6);
+}
+
+/* Table */
+.tableContainer {
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.thead {
+  background: var(--mantine-color-gray-0);
+}
+/* .thead :global(th) {
+  text-align: center;
+} */
+
+.dateCol {
+  white-space: nowrap;
+  width: 120px;
+}
+
+.opsCol {
+  width: 140px;
+}
+
+.detailText {
+  color: var(--mantine-color-dimmed);
+}
+
+.emptyState {
+  color: var(--mantine-color-dimmed);
+  text-align: center;
+  padding: 16px 0;
+}
+
+.pagination {
+  margin-top: 8px;
+}
+
+/* Modal */
+.modalBox {
+  width: 180px;
+  height: 180px;
+}
+
+/* DatePicker header refinement */
+.calendarHeader {
+  padding: 8px 10px;
+}
+.calendarHeaderLevel {
+  font-weight: 600;
+  font-size: 14px;
+}
+.calendarHeaderControl {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--mantine-color-gray-1);
+  transition: background 120ms ease;
+}
+.calendarHeaderControl:hover {
+  background: var(--mantine-color-gray-2);
+}
+/* shrink arrow icons */
+.calendarHeaderControl :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .container {
+    gap: 16px;
+  }
+  .title {
+    font-size: 16px;
+  }
+  .opsCol {
+    width: 100px;
+  }
+  .formRow {
+    padding: 10px;
+    gap: 8px;
+  }
+  /* Make inputs within row flex nicely on tablet */
+  .formRow :global(.mantine-Input-wrapper) {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .formRow {
+    padding: 10px;
+  }
+  .opsCol {
+    width: 110px;
+  }
+}
+
+/* Dark mode refinements */
+[data-mantine-color-scheme='dark'] .typeControl {
+  background: var(--mantine-color-dark-6);
+}
+[data-mantine-color-scheme='dark'] .formRow {
+  border-color: var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-6);
+}
+[data-mantine-color-scheme='dark'] .tableContainer {
+  border-color: var(--mantine-color-dark-4);
+}
+[data-mantine-color-scheme='dark'] .thead {
+  background: var(--mantine-color-dark-7);
+}

@@ -1,17 +1,35 @@
 // 整个服务的入口文件，启动 Express 服务、注册路由、中间件等
 import express from 'express'
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { setupMiddleware } from './middleware/index.js'
 import authRoutes from './routes/auth.js'
 import dashboardRoutes from './routes/dashboard.js'
+import logbookRoutes from './routes/logbook.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename) // 获取当前文件所在目录的路径
 
 const app = express() // 创建Express应用实例
 const PORT = process.env.PORT || 3000 // 设置服务器监听端口
-setupMiddleware(app) // 配置中间件
+setupMiddleware(app)
+
+// 启动时确保日志数据文件存在
+;(() => {
+  try {
+    const dataDir = path.join(__dirname, 'data')
+    const logbookFile = path.join(dataDir, 'logbook.json')
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+    if (!fs.existsSync(logbookFile)) {
+      fs.writeFileSync(logbookFile, '[]', 'utf-8')
+    }
+  } catch (e) {
+    console.error('初始化日志数据文件失败:', e)
+  }
+})()
 
 // 注册API路由
 app.post('/api/login', authRoutes.login)
@@ -19,6 +37,11 @@ app.get('/api/auth/verify', authRoutes.verifyToken)
 app.get('/api/profile', authRoutes.getProfile)
 app.put('/api/profile', authRoutes.updateProfile)
 app.get('/api/dashboard', dashboardRoutes.getDashboard)
+app.get('/api/logbook', logbookRoutes.list)
+app.get('/api/logbook/:id', logbookRoutes.getOne)
+app.post('/api/logbook', logbookRoutes.create)
+app.put('/api/logbook/:id', logbookRoutes.update)
+app.delete('/api/logbook/:id', logbookRoutes.remove)
 
 // 健康检查端点
 app.get('/api/health', (req, res) => {
