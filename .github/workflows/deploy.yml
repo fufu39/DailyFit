@@ -50,7 +50,7 @@ jobs:
 
       # 步骤7: 构建项目
       - name: Build Project
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       # 步骤8: 部署到生产环境
       - name: Deploy Project to Production
