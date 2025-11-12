@@ -69,7 +69,7 @@ export default [
 
   // Server端JavaScript文件配置
   {
-    files: ['server/**/*.js'],
+    files: ['server/**/*.js', 'api/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.node,

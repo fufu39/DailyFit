@@ -5,9 +5,11 @@ import express from 'express'
 // 常用于验证token、日志记录、CORS跨域处理、请求体解析
 export const setupMiddleware = (app) => {
   // CORS配置 - 限制允许的源
+  // 在 Vercel 上，前后端在同一域名，CORS 配置更宽松
   const corsOptions = {
-    origin:
-      process.env.NODE_ENV === 'production'
+    origin: process.env.VERCEL
+      ? true // Vercel 环境：允许所有源（因为前后端同域）
+      : process.env.NODE_ENV === 'production'
         ? process.env.FRONTEND_URL || 'http://localhost:5173'
         : ['http://localhost:5173', 'http://localhost:3000'],
     credentials: true,

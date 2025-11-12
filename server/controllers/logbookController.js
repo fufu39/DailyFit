@@ -1,11 +1,8 @@
 import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { getDataDir, getDataFilePath } from '../utils/dataPath.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const DATA_DIR = path.join(__dirname, '..', 'data')
-const DATA_FILE = path.join(DATA_DIR, 'logbook.json')
+const DATA_DIR = getDataDir()
+const DATA_FILE = getDataFilePath('logbook.json')
 
 // 确保数据目录和文件存在，不存在则创建
 function ensureDataFile() {

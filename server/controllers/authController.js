@@ -1,17 +1,13 @@
 // 业务逻辑控制器
 // 负责处理具体请求逻辑，即从路由接收请求→操作数据（如读写JSON文件或数据库）→返回响应数据
 import fs from 'fs/promises'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename) // 获取当前文件所在目录的路径
+import { getDataDir, getDataFilePath } from '../utils/dataPath.js'
 
 // 用户数据文件路径
-const usersFilePath = path.join(__dirname, '..', 'data', 'users.json')
+const usersFilePath = getDataFilePath('users.json')
 
 // 确保 data 目录存在
-const dataDir = path.join(__dirname, '..', 'data')
+const dataDir = getDataDir()
 
 const initializeUsersFile = async () => {
   try {

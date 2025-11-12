@@ -14,39 +14,31 @@ setupMiddleware(app)
 ;(async () => {
   try {
     // 使用工具函数获取数据目录路径
-    const { getDataFilePath } = await import('../server/utils/dataPath.js')
+    const { getDataDir, getDataFilePath } = await import('../server/utils/dataPath.js')
+    const dataDir = getDataDir()
     const logbookFile = getDataFilePath('logbook.json')
     const usersFile = getDataFilePath('users.json')
 
-    // 警告：你不能在 Vercel 上 *写入* 或 *创建* 文件
-    // 下面的 fs.mkdirSync 和 fs.writeFileSync 必须被注释掉，否则 API 会崩溃
-    // if (!fs.existsSync(dataDir)) {
-    //   fs.mkdirSync(dataDir, { recursive: true })
-    // }
-    // if (!fs.existsSync(logbookFile)) {
-    //   fs.writeFileSync(logbookFile, '[]', 'utf-8')
-    // }
-    // if (!fs.existsSync(usersFile)) {
-    //   const defaultUsers = [
-    //     {
-    //       id: 1,
-    //       username: 'admin',
-    //       password: '1',
-    //       email: 'admin@example.com',
-    //       name: '管理员',
-    //     },
-    //   ]
-    //   fs.writeFileSync(usersFile, JSON.stringify(defaultUsers, null, 2), 'utf-8')
-    // }
-
-    // 你必须在部署前，在你的 'server/data' 目录中【手动】创建'logbook.json' (内容为 []) 和 'users.json' (内容为默认用户数组)
-    // Vercel 只会 读取 你仓库中的文件
-    if (!fs.existsSync(logbookFile) || !fs.existsSync(usersFile)) {
-      console.warn('数据文件 (logbook.json / users.json) 未找到！')
-      console.warn("请在部署前，在 'server/data/' 目录中手动创建这些文件。")
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+    if (!fs.existsSync(logbookFile)) {
+      fs.writeFileSync(logbookFile, '[]', 'utf-8')
+    }
+    if (!fs.existsSync(usersFile)) {
+      const defaultUsers = [
+        {
+          id: 1,
+          username: 'admin',
+          password: '1',
+          email: 'admin@example.com',
+          name: '管理员',
+        },
+      ]
+      fs.writeFileSync(usersFile, JSON.stringify(defaultUsers, null, 2), 'utf-8')
     }
   } catch (e) {
-    console.error('初始化数据文件失败 (这在 Vercel 上是预期的，因为文件系统只读):', e)
+    console.error('初始化数据文件失败:', e)
   }
 })()
 

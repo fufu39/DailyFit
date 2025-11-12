@@ -1,16 +1,12 @@
 // 仪表盘数据控制器
 // 负责从JSON文件读取和返回仪表盘所需的各种统计数据
 import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { getProjectDataFilePath } from '../utils/dataPath.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-// 读取仪表盘数据
+// 读取仪表盘数据（只读文件，从项目目录读取）
 const readDashboardData = () => {
   try {
-    const dataPath = path.join(__dirname, '..', 'data', 'dashboard.json')
+    const dataPath = getProjectDataFilePath('dashboard.json')
     const fileContent = fs.readFileSync(dataPath, 'utf-8')
     return JSON.parse(fileContent)
   } catch (error) {
