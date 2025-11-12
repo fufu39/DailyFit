@@ -13,6 +13,7 @@ import {
   Modal,
   Box,
   Divider,
+  Badge,
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { modals } from '@mantine/modals'
@@ -20,6 +21,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { IconPlus, IconTrash, IconEdit } from '@tabler/icons-react'
+import dayjs from 'dayjs'
 import type {
   CardioItem,
   LogType,
@@ -37,7 +39,7 @@ type StrengthFormItem = Omit<StrengthItem, 'id'>
 type CardioFormItem = Omit<CardioItem, 'id'>
 
 type FormValues = {
-  date: Date | null
+  date: Date | string | null
   type: LogType
   strengthItems: StrengthFormItem[]
   cardioItems: CardioFormItem[]
@@ -115,6 +117,7 @@ export default function LogbookPage() {
   } = useFieldArray({
     control,
     name: 'strengthItems',
+    keyName: 'key', // 使用key作为React的key
   })
 
   const {
@@ -124,6 +127,7 @@ export default function LogbookPage() {
   } = useFieldArray({
     control,
     name: 'cardioItems',
+    keyName: 'key', // 使用key作为React的key
   })
 
   const {
@@ -133,6 +137,7 @@ export default function LogbookPage() {
   } = useFieldArray({
     control,
     name: 'functionalItems',
+    keyName: 'key', // 使用key作为React的key
   })
 
   const {
@@ -142,6 +147,7 @@ export default function LogbookPage() {
   } = useFieldArray({
     control,
     name: 'flexibilityItems',
+    keyName: 'key', // 使用key作为React的key
   })
 
   const [modalOpened, setModalOpened] = useState(false)
@@ -161,53 +167,104 @@ export default function LogbookPage() {
     }
   }
 
+  const getTypeBadge = (t: LogType) => {
+    switch (t) {
+      case 'strength':
+        return (
+          <Badge size="lg" color="red" variant="light">
+            {getTypeLabel(t)}
+          </Badge>
+        )
+      case 'cardio':
+        return (
+          <Badge size="lg" color="blue" variant="light">
+            {getTypeLabel(t)}
+          </Badge>
+        )
+      case 'functional':
+        return (
+          <Badge size="lg" color="green" variant="light">
+            {getTypeLabel(t)}
+          </Badge>
+        )
+      case 'flexibility':
+        return (
+          <Badge size="lg" color="violet" variant="light">
+            {getTypeLabel(t)}
+          </Badge>
+        )
+      default:
+        return <Badge size="lg">{getTypeLabel(t)}</Badge>
+    }
+  }
+
   const getDetailsText = (r: LogbookRecord): string => {
     if (r.type === 'strength') {
       return (r.strengthItems || [])
-        .map((s) => `${s.name || '未命名'} ${s.sets}x${s.reps}@${s.weight}kg`)
+        .map(
+          (s) =>
+            `项目名称：${s.name || '未命名'}，组数：${s.sets}组，次数：${s.reps}次，重量：${s.weight}kg`
+        )
         .join('； ')
     }
     if (r.type === 'cardio') {
       return (r.cardioItems || [])
-        .map((c) => `${c.activity || '未命名'} ${c.durationMinutes}min ${c.distanceKm ?? 0}km`)
+        .map(
+          (c) =>
+            `项目名称：${c.activity || '未命名'}，时长：${c.durationMinutes}min，距离：${c.distanceKm ?? 0}km`
+        )
         .join('； ')
     }
     if (r.type === 'functional') {
       return (r.functionalItems || [])
-        .map((f) => `${f.activity || '未命名'} ${f.durationMinutes}min`)
+        .map((f) => `项目名称：${f.activity || '未命名'}，时长：${f.durationMinutes}min`)
         .join('； ')
     }
     return (r.flexibilityItems || [])
-      .map((f) => `${f.activity || '未命名'} ${f.durationMinutes}min`)
+      .map((f) => `项目名称：${f.activity || '未命名'}，时长：${f.durationMinutes}min`)
       .join('； ')
   }
 
   const onSubmit = handleSubmit(async (values) => {
-    const iso = values.date ? formatDateISO(values.date) : formatDateISO(new Date())
+    if (!values.date) {
+      return // 验证失败，不会执行后续代码
+    }
+    // 处理日期：如果已经是字符串格式（YYYY-MM-DD），直接使用；如果是 Date 对象，转换为字符串
+    const iso = typeof values.date === 'string' ? values.date : formatDateISO(values.date)
+
+    // 为每个训练项创建独立的记录
     if (values.type === 'strength') {
-      const normalized: StrengthItem[] = values.strengthItems.map((it) => ({
-        id: Math.random().toString(36).slice(2),
-        ...it,
-      }))
-      await saveRecord({ date: iso, type: 'strength', strengthItems: normalized })
+      for (const item of values.strengthItems) {
+        const normalized: StrengthItem = {
+          id: Math.random().toString(36).slice(2),
+          ...item,
+        }
+        await saveRecord({ date: iso, type: 'strength', strengthItems: [normalized] })
+      }
     } else if (values.type === 'cardio') {
-      const normalized: CardioItem[] = values.cardioItems.map((it) => ({
-        id: Math.random().toString(36).slice(2),
-        ...it,
-      }))
-      await saveRecord({ date: iso, type: 'cardio', cardioItems: normalized })
+      for (const item of values.cardioItems) {
+        const normalized: CardioItem = {
+          id: Math.random().toString(36).slice(2),
+          ...item,
+        }
+        await saveRecord({ date: iso, type: 'cardio', cardioItems: [normalized] })
+      }
     } else if (values.type === 'functional') {
-      const normalized: FunctionalItem[] = values.functionalItems.map((it) => ({
-        id: Math.random().toString(36).slice(2),
-        ...it,
-      }))
-      await saveRecord({ date: iso, type: 'functional', functionalItems: normalized })
+      for (const item of values.functionalItems) {
+        const normalized: FunctionalItem = {
+          id: Math.random().toString(36).slice(2),
+          ...item,
+        }
+        await saveRecord({ date: iso, type: 'functional', functionalItems: [normalized] })
+      }
     } else if (values.type === 'flexibility') {
-      const normalized: FlexibilityItem[] = values.flexibilityItems.map((it) => ({
-        id: Math.random().toString(36).slice(2),
-        ...it,
-      }))
-      await saveRecord({ date: iso, type: 'flexibility', flexibilityItems: normalized })
+      for (const item of values.flexibilityItems) {
+        const normalized: FlexibilityItem = {
+          id: Math.random().toString(36).slice(2),
+          ...item,
+        }
+        await saveRecord({ date: iso, type: 'flexibility', flexibilityItems: [normalized] })
+      }
     }
 
     setModalOpened(true)
@@ -226,79 +283,107 @@ export default function LogbookPage() {
   return (
     <Stack gap="lg" className={classes.container}>
       <Card withBorder radius="md" p="lg" className={classes.card} shadow="sm">
-        <Stack>
+        <Stack gap="sm">
           <Group justify="space-between" wrap="wrap" className={classes.cardHeader}>
             <Text fw={700} size="lg" className={classes.title}>
               记录训练
             </Text>
-            <Group gap="lg" align="center" wrap="nowrap">
-              <Controller
-                control={control}
-                name="date"
-                render={({ field }) => (
-                  <DatePickerInput
-                    placeholder="选择日期"
-                    size={isTablet ? 'xs' : 'sm'}
-                    value={field.value}
-                    onChange={field.onChange}
-                    valueFormat="YYYY-MM-DD"
-                    locale="en"
-                    firstDayOfWeek={1}
-                    monthLabelFormat="MMMM YYYY"
-                    popoverProps={{ withinPortal: true }}
-                    styles={{
-                      calendarHeader: { padding: 8 },
-                      calendarHeaderLevel: { fontSize: 14, fontWeight: 600 },
-                      calendarHeaderControl: {
-                        width: 28,
-                        height: 28,
-                        borderRadius: 999,
-                      },
-                    }}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="type"
-                render={({ field }) => (
-                  <SegmentedControl
-                    className={classes.typeControl}
-                    size={isTablet ? 'xs' : 'sm'}
-                    radius="xl"
-                    value={field.value}
-                    onChange={(v) => field.onChange(v as LogType)}
-                    data={[
-                      { label: '力量', value: 'strength' },
-                      { label: '有氧', value: 'cardio' },
-                      { label: '功能性', value: 'functional' },
-                      { label: '柔韧性', value: 'flexibility' },
-                    ]}
-                  />
-                )}
-              />
-            </Group>
+            <Controller
+              control={control}
+              name="type"
+              render={({ field }) => (
+                <SegmentedControl
+                  className={classes.typeControl}
+                  size={isTablet ? 'sm' : 'md'}
+                  radius="xl"
+                  value={field.value}
+                  onChange={(v) => field.onChange(v as LogType)}
+                  data={[
+                    { label: '力量', value: 'strength' },
+                    { label: '有氧', value: 'cardio' },
+                    { label: '功能性', value: 'functional' },
+                    { label: '柔韧性', value: 'flexibility' },
+                  ]}
+                />
+              )}
+            />
           </Group>
           <Divider className={classes.divider} />
 
           {type === 'strength' ? (
-            <Stack>
+            <Stack gap="xs">
               <Group justify="space-between">
-                <Text c="dimmed">力量项目</Text>
-                <Button
-                  className={classes.addButton}
-                  size="xs"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={() => strengthAppend({ name: '', sets: 3, reps: 10, weight: 0 })}
-                  variant="light"
-                >
-                  添加训练项
-                </Button>
+                <Text className={classes.cardTitle}>力量项目</Text>
+                <Group gap="md" align="center" wrap="nowrap">
+                  <Group gap="xs" align="center" wrap="nowrap" style={{ marginRight: '8px' }}>
+                    {!isTablet && (
+                      <Text size="md" c="var(--mantine-color-text)">
+                        选择日期
+                      </Text>
+                    )}
+                    <Controller
+                      control={control}
+                      name="date"
+                      rules={{ required: '请选择日期' }}
+                      render={({ field, fieldState }) => (
+                        <DatePickerInput
+                          placeholder="选择日期"
+                          size="sm"
+                          value={field.value}
+                          onChange={field.onChange}
+                          valueFormat="YYYY-MM-DD"
+                          locale="en"
+                          className={classes.datePicker}
+                          firstDayOfWeek={1}
+                          monthLabelFormat="MMMM YYYY"
+                          popoverProps={{ withinPortal: true }}
+                          error={fieldState.error?.message}
+                          presets={[
+                            {
+                              value: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Yesterday',
+                            },
+                            { value: dayjs().format('YYYY-MM-DD'), label: 'Today' },
+                            {
+                              value: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Tomorrow',
+                            },
+                            {
+                              value: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Next month',
+                            },
+                            {
+                              value: dayjs().add(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Next year',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Last month',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Last year',
+                            },
+                          ]}
+                        />
+                      )}
+                    />
+                  </Group>
+                  <Button
+                    className={classes.addButton}
+                    size="xs"
+                    leftSection={<IconPlus size={16} />}
+                    onClick={() => strengthAppend({ name: '', sets: 3, reps: 10, weight: 0 })}
+                    variant="light"
+                  >
+                    添加训练项
+                  </Button>
+                </Group>
               </Group>
               <AnimatePresence initial={false}>
                 {strengthFields.map((field, idx) => (
                   <motion.div
-                    key={field.id}
+                    key={field.key}
                     initial="hidden"
                     animate="show"
                     exit="exit"
@@ -307,7 +392,11 @@ export default function LogbookPage() {
                   >
                     <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
                       <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
-                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                        <Text
+                          size="sm"
+                          className={classes.formLabel}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
                           项目名称
                         </Text>
                         <TextInput
@@ -322,7 +411,11 @@ export default function LogbookPage() {
                         name={`strengthItems.${idx}.sets`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               组数
                             </Text>
                             <NumberInput
@@ -340,7 +433,11 @@ export default function LogbookPage() {
                         name={`strengthItems.${idx}.reps`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               次数
                             </Text>
                             <NumberInput
@@ -358,7 +455,11 @@ export default function LogbookPage() {
                         name={`strengthItems.${idx}.weight`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               重量(kg)
                             </Text>
                             <NumberInput
@@ -377,7 +478,12 @@ export default function LogbookPage() {
                         size="xs"
                         color="red"
                         variant="subtle"
-                        onClick={() => strengthRemove(idx)}
+                        onClick={() => {
+                          if (strengthFields.length > 1) {
+                            strengthRemove(idx)
+                          }
+                        }}
+                        disabled={strengthFields.length <= 1}
                         leftSection={<IconTrash size={16} />}
                       >
                         删除
@@ -388,23 +494,81 @@ export default function LogbookPage() {
               </AnimatePresence>
             </Stack>
           ) : type === 'cardio' ? (
-            <Stack>
+            <Stack gap="xs">
               <Group justify="space-between">
-                <Text c="dimmed">有氧项目</Text>
-                <Button
-                  className={classes.addButton}
-                  size="xs"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={() => cardioAppend({ activity: '', durationMinutes: 30, distanceKm: 5 })}
-                  variant="light"
-                >
-                  添加训练项
-                </Button>
+                <Text className={classes.cardTitle}>有氧项目</Text>
+                <Group gap="md" align="center" wrap="nowrap">
+                  <Group gap="xs" align="center" wrap="nowrap" style={{ marginRight: '8px' }}>
+                    {!isTablet && (
+                      <Text size="md" c="var(--mantine-color-text)">
+                        选择日期
+                      </Text>
+                    )}
+                    <Controller
+                      control={control}
+                      name="date"
+                      rules={{ required: '请选择日期' }}
+                      render={({ field, fieldState }) => (
+                        <DatePickerInput
+                          placeholder="选择日期"
+                          size="sm"
+                          value={field.value}
+                          onChange={field.onChange}
+                          valueFormat="YYYY-MM-DD"
+                          locale="en"
+                          className={classes.datePicker}
+                          firstDayOfWeek={1}
+                          monthLabelFormat="MMMM YYYY"
+                          popoverProps={{ withinPortal: true }}
+                          error={fieldState.error?.message}
+                          presets={[
+                            {
+                              value: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Yesterday',
+                            },
+                            { value: dayjs().format('YYYY-MM-DD'), label: 'Today' },
+                            {
+                              value: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Tomorrow',
+                            },
+                            {
+                              value: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Next month',
+                            },
+                            {
+                              value: dayjs().add(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Next year',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Last month',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Last year',
+                            },
+                          ]}
+                        />
+                      )}
+                    />
+                  </Group>
+                  <Button
+                    className={classes.addButton}
+                    size="xs"
+                    leftSection={<IconPlus size={16} />}
+                    onClick={() =>
+                      cardioAppend({ activity: '', durationMinutes: 30, distanceKm: 5 })
+                    }
+                    variant="light"
+                  >
+                    添加训练项
+                  </Button>
+                </Group>
               </Group>
               <AnimatePresence initial={false}>
                 {cardioFields.map((field, idx) => (
                   <motion.div
-                    key={field.id}
+                    key={field.key}
                     initial="hidden"
                     animate="show"
                     exit="exit"
@@ -413,8 +577,12 @@ export default function LogbookPage() {
                   >
                     <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
                       <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
-                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
-                          活动
+                        <Text
+                          size="sm"
+                          className={classes.formLabel}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          项目名称
                         </Text>
                         <TextInput
                           placeholder="跑步/骑行/划船等"
@@ -428,7 +596,11 @@ export default function LogbookPage() {
                         name={`cardioItems.${idx}.durationMinutes`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               时长(分钟)
                             </Text>
                             <NumberInput
@@ -446,7 +618,11 @@ export default function LogbookPage() {
                         name={`cardioItems.${idx}.distanceKm`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               距离(km)
                             </Text>
                             <NumberInput
@@ -465,7 +641,12 @@ export default function LogbookPage() {
                         size="xs"
                         color="red"
                         variant="subtle"
-                        onClick={() => cardioRemove(idx)}
+                        onClick={() => {
+                          if (cardioFields.length > 1) {
+                            cardioRemove(idx)
+                          }
+                        }}
+                        disabled={cardioFields.length <= 1}
                         leftSection={<IconTrash size={16} />}
                       >
                         删除
@@ -476,23 +657,79 @@ export default function LogbookPage() {
               </AnimatePresence>
             </Stack>
           ) : type === 'functional' ? (
-            <Stack>
+            <Stack gap="xs">
               <Group justify="space-between">
-                <Text c="dimmed">功能性训练</Text>
-                <Button
-                  className={classes.addButton}
-                  size="xs"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={() => functionalAppend({ activity: '', durationMinutes: 20 })}
-                  variant="light"
-                >
-                  添加训练项
-                </Button>
+                <Text className={classes.cardTitle}>功能性训练</Text>
+                <Group gap="md" align="center" wrap="nowrap">
+                  <Group gap="xs" align="center" wrap="nowrap" style={{ marginRight: '8px' }}>
+                    {!isTablet && (
+                      <Text size="md" c="var(--mantine-color-text)">
+                        选择日期
+                      </Text>
+                    )}
+                    <Controller
+                      control={control}
+                      name="date"
+                      rules={{ required: '请选择日期' }}
+                      render={({ field, fieldState }) => (
+                        <DatePickerInput
+                          placeholder="选择日期"
+                          size="sm"
+                          value={field.value}
+                          onChange={field.onChange}
+                          valueFormat="YYYY-MM-DD"
+                          locale="en"
+                          className={classes.datePicker}
+                          firstDayOfWeek={1}
+                          monthLabelFormat="MMMM YYYY"
+                          popoverProps={{ withinPortal: true }}
+                          error={fieldState.error?.message}
+                          presets={[
+                            {
+                              value: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Yesterday',
+                            },
+                            { value: dayjs().format('YYYY-MM-DD'), label: 'Today' },
+                            {
+                              value: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Tomorrow',
+                            },
+                            {
+                              value: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Next month',
+                            },
+                            {
+                              value: dayjs().add(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Next year',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Last month',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Last year',
+                            },
+                          ]}
+                        />
+                      )}
+                    />
+                  </Group>
+                  <Button
+                    className={classes.addButton}
+                    size="xs"
+                    leftSection={<IconPlus size={16} />}
+                    onClick={() => functionalAppend({ activity: '', durationMinutes: 20 })}
+                    variant="light"
+                  >
+                    添加训练项
+                  </Button>
+                </Group>
               </Group>
               <AnimatePresence initial={false}>
                 {functionalFields.map((field, idx) => (
                   <motion.div
-                    key={field.id}
+                    key={field.key}
                     initial="hidden"
                     animate="show"
                     exit="exit"
@@ -501,8 +738,12 @@ export default function LogbookPage() {
                   >
                     <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
                       <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
-                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
-                          项目
+                        <Text
+                          size="sm"
+                          className={classes.formLabel}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          项目名称
                         </Text>
                         <TextInput
                           placeholder="核心/平衡/爆发等"
@@ -516,7 +757,11 @@ export default function LogbookPage() {
                         name={`functionalItems.${idx}.durationMinutes`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               时长(分钟)
                             </Text>
                             <NumberInput
@@ -534,7 +779,12 @@ export default function LogbookPage() {
                         size="xs"
                         color="red"
                         variant="subtle"
-                        onClick={() => functionalRemove(idx)}
+                        onClick={() => {
+                          if (functionalFields.length > 1) {
+                            functionalRemove(idx)
+                          }
+                        }}
+                        disabled={functionalFields.length <= 1}
                         leftSection={<IconTrash size={16} />}
                       >
                         删除
@@ -545,23 +795,79 @@ export default function LogbookPage() {
               </AnimatePresence>
             </Stack>
           ) : (
-            <Stack>
+            <Stack gap="xs">
               <Group justify="space-between">
-                <Text c="dimmed">柔韧性训练</Text>
-                <Button
-                  className={classes.addButton}
-                  size="xs"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={() => flexibilityAppend({ activity: '', durationMinutes: 15 })}
-                  variant="light"
-                >
-                  添加训练项
-                </Button>
+                <Text className={classes.cardTitle}>柔韧性训练</Text>
+                <Group gap="md" align="center" wrap="nowrap">
+                  <Group gap="xs" align="center" wrap="nowrap" style={{ marginRight: '8px' }}>
+                    {!isTablet && (
+                      <Text size="md" c="var(--mantine-color-text)">
+                        选择日期
+                      </Text>
+                    )}
+                    <Controller
+                      control={control}
+                      name="date"
+                      rules={{ required: '请选择日期' }}
+                      render={({ field, fieldState }) => (
+                        <DatePickerInput
+                          placeholder="选择日期"
+                          size="sm"
+                          value={field.value}
+                          onChange={field.onChange}
+                          valueFormat="YYYY-MM-DD"
+                          locale="en"
+                          className={classes.datePicker}
+                          firstDayOfWeek={1}
+                          monthLabelFormat="MMMM YYYY"
+                          popoverProps={{ withinPortal: true }}
+                          error={fieldState.error?.message}
+                          presets={[
+                            {
+                              value: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Yesterday',
+                            },
+                            { value: dayjs().format('YYYY-MM-DD'), label: 'Today' },
+                            {
+                              value: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+                              label: 'Tomorrow',
+                            },
+                            {
+                              value: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Next month',
+                            },
+                            {
+                              value: dayjs().add(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Next year',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                              label: 'Last month',
+                            },
+                            {
+                              value: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+                              label: 'Last year',
+                            },
+                          ]}
+                        />
+                      )}
+                    />
+                  </Group>
+                  <Button
+                    className={classes.addButton}
+                    size="xs"
+                    leftSection={<IconPlus size={16} />}
+                    onClick={() => flexibilityAppend({ activity: '', durationMinutes: 15 })}
+                    variant="light"
+                  >
+                    添加训练项
+                  </Button>
+                </Group>
               </Group>
               <AnimatePresence initial={false}>
                 {flexibilityFields.map((field, idx) => (
                   <motion.div
-                    key={field.id}
+                    key={field.key}
                     initial="hidden"
                     animate="show"
                     exit="exit"
@@ -570,8 +876,12 @@ export default function LogbookPage() {
                   >
                     <Group align="center" wrap="wrap" gap="sm" className={classes.formRow}>
                       <Group align="center" gap="xs" style={{ flex: 2, minWidth: 200 }}>
-                        <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
-                          项目
+                        <Text
+                          size="sm"
+                          className={classes.formLabel}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          项目名称
                         </Text>
                         <TextInput
                           placeholder="静态拉伸/动态拉伸/瑜伽等"
@@ -585,7 +895,11 @@ export default function LogbookPage() {
                         name={`flexibilityItems.${idx}.durationMinutes`}
                         render={({ field }) => (
                           <Group align="center" gap="xs">
-                            <Text size="sm" fw={500} style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              size="sm"
+                              className={classes.formLabel}
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
                               时长(分钟)
                             </Text>
                             <NumberInput
@@ -603,7 +917,12 @@ export default function LogbookPage() {
                         size="xs"
                         color="red"
                         variant="subtle"
-                        onClick={() => flexibilityRemove(idx)}
+                        onClick={() => {
+                          if (flexibilityFields.length > 1) {
+                            flexibilityRemove(idx)
+                          }
+                        }}
+                        disabled={flexibilityFields.length <= 1}
                         leftSection={<IconTrash size={16} />}
                       >
                         删除
@@ -624,11 +943,9 @@ export default function LogbookPage() {
       </Card>
 
       <Card withBorder radius="md" p="lg" className={classes.card} shadow="sm">
-        <Stack>
+        <Stack gap="sm">
           <Group justify="space-between" align="center">
-            <Text fw={700} size="lg" className={classes.title}>
-              训练历史
-            </Text>
+            <Text className={classes.title}>训练历史</Text>
           </Group>
 
           <div className={classes.tableContainer}>
@@ -636,8 +953,8 @@ export default function LogbookPage() {
               <Table.Thead className={classes.thead}>
                 <Table.Tr>
                   <Table.Th className={classes.dateCol}>日期</Table.Th>
-                  <Table.Th>类型</Table.Th>
-                  <Table.Th>详情</Table.Th>
+                  <Table.Th className={classes.typeCol}>类型</Table.Th>
+                  <Table.Th className={classes.detailCol}>详情</Table.Th>
                   <Table.Th className={classes.opsCol}>操作</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -652,18 +969,14 @@ export default function LogbookPage() {
                   data.map((r) => (
                     <Table.Tr key={r.id}>
                       <Table.Td className={classes.dateCol}>{r.date}</Table.Td>
-                      <Table.Td>{getTypeLabel(r.type)}</Table.Td>
-                      <Table.Td>
-                        <Text
-                          size={isTablet ? 'xs' : 'sm'}
-                          className={classes.detailText}
-                          lineClamp={isTablet ? 3 : 2}
-                        >
+                      <Table.Td className={classes.typeCol}>{getTypeBadge(r.type)}</Table.Td>
+                      <Table.Td className={classes.detailCol}>
+                        <Text size={isTablet ? 'xs' : 'sm'} className={classes.detailText}>
                           {getDetailsText(r)}
                         </Text>
                       </Table.Td>
                       <Table.Td className={classes.opsCol}>
-                        <Group gap="xs" justify="flex-end" wrap="nowrap">
+                        <Group gap="xs" justify="center" wrap="nowrap">
                           {isTablet ? (
                             <>
                               <Button
@@ -702,11 +1015,11 @@ export default function LogbookPage() {
 
           <Group justify="space-between" mt="md" className={classes.pagination}>
             <Group gap="xs">
-              <Text size="sm" c="dimmed">
+              <Text size="md" c="var(--mantine-color-text)">
                 每页
               </Text>
               <SegmentedControl
-                size="xs"
+                size="sm"
                 radius="xl"
                 value={String(pageSize)}
                 onChange={(v) => {
@@ -725,7 +1038,7 @@ export default function LogbookPage() {
             </Group>
             <Group gap="md" align="center">
               <Pagination total={totalPages} value={page} onChange={setPage} />
-              <Text size="sm" c="dimmed">
+              <Text size="md" c="var(--mantine-color-text)">
                 共{total}条
               </Text>
             </Group>

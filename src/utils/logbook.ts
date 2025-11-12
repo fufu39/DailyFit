@@ -53,7 +53,7 @@ export async function saveRecord(
   record: Omit<LogbookRecord, 'id' | 'createdAt'>
 ): Promise<LogbookRecord> {
   const res = await axios.post('/api/logbook', record)
-  console.log(res.data.data)
+  console.log('保存训练记录：', res.data.data)
   return res.data.data as LogbookRecord
 }
 
@@ -64,7 +64,7 @@ export async function updateRecord(
 ): Promise<LogbookRecord | undefined> {
   try {
     const res = await axios.put(`/api/logbook/${id}`, partial)
-    console.log(res.data.data)
+    console.log('更新训练记录：', res.data.data)
     return res.data.data as LogbookRecord
   } catch (e: unknown) {
     console.log(e)
@@ -78,7 +78,7 @@ export async function updateRecord(
 export async function getRecordById(id: string): Promise<LogbookRecord | undefined> {
   try {
     const res = await axios.get(`/api/logbook/${id}`)
-    console.log(res.data.data)
+    console.log('根据ID获取训练记录：', res.data.data)
     return res.data.data as LogbookRecord
   } catch (e: unknown) {
     console.log(e)
@@ -90,7 +90,8 @@ export async function getRecordById(id: string): Promise<LogbookRecord | undefin
 
 // 删除训练记录
 export async function deleteRecord(id: string): Promise<void> {
-  await axios.delete(`/api/logbook/${id}`)
+  const res = await axios.delete(`/api/logbook/${id}`)
+  console.log('删除训练记录：', res.data.data)
 }
 
 // 分页查询结果
@@ -105,7 +106,7 @@ export type PaginatedResult = {
 // 分页获取训练记录列表
 export async function listPaginated(page: number, pageSize: number): Promise<PaginatedResult> {
   const res = await axios.get('/api/logbook', { params: { page, pageSize } })
-  console.log(res.data.data)
+  console.log('分页获取训练记录：', res.data.data)
   return res.data.data as PaginatedResult
 }
 

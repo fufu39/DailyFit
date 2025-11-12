@@ -1,48 +1,73 @@
 [
   {
-    "id": "lg_1762882537260_2ufhuf",
+    "id": "lg_1762928392423_yp4jhe",
     "date": "2025-11-12",
     "type": "strength",
     "strengthItems": [
       {
-        "id": "bej5q3mi9jo",
+        "id": "hxvwjsj1phh",
         "name": "",
-        "sets": 3,
+        "sets": 8,
         "reps": 10,
-        "weight": 0
+        "weight": 2.5
       }
     ],
-    "createdAt": 1762882537260
+    "createdAt": 1762928392423
   },
   {
-    "id": "lg_1762882536202_dorbmi",
+    "id": "lg_1762926884209_049dcs",
     "date": "2025-11-12",
     "type": "strength",
     "strengthItems": [
       {
-        "id": "t9tye2bo79",
+        "id": "z3afsu9nwfp",
         "name": "",
         "sets": 3,
         "reps": 10,
-        "weight": 0
+        "weight": 10000
       }
     ],
-    "createdAt": 1762882536202
+    "createdAt": 1762926884209
   },
   {
-    "id": "lg_1762882534848_xa5rs9",
+    "id": "lg_1762925558607_c1cssv",
     "date": "2025-11-12",
-    "type": "strength",
-    "strengthItems": [
+    "type": "functional",
+    "functionalItems": [
       {
-        "id": "ygzc6699xp",
-        "name": "",
-        "sets": 3,
-        "reps": 10,
-        "weight": 0
+        "id": "uirqwsvcl1",
+        "activity": "",
+        "durationMinutes": 20
       }
     ],
-    "createdAt": 1762882534848
+    "createdAt": 1762925558607
+  },
+  {
+    "id": "lg_1762925306399_dc8j9m",
+    "date": "2025-11-12",
+    "type": "cardio",
+    "cardioItems": [
+      {
+        "id": "wjcaywecrj",
+        "activity": "",
+        "durationMinutes": 30,
+        "distanceKm": 5
+      }
+    ],
+    "createdAt": 1762925306399
+  },
+  {
+    "id": "lg_1762919358080_3pm2nk",
+    "date": "2025-11-12",
+    "type": "flexibility",
+    "flexibilityItems": [
+      {
+        "id": "slroki4bbi",
+        "activity": "",
+        "durationMinutes": 15
+      }
+    ],
+    "createdAt": 1762919358080
   },
   {
     "id": "lg_1762882221851_7u8co6",

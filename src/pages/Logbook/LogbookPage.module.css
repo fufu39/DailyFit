@@ -3,17 +3,37 @@
 }
 
 .card {
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 20px 28px !important;
+  margin-bottom: 8px;
 }
 
-.cardHeader {
-  padding-bottom: 6px;
+/* 第一个卡片（记录训练）增加底部间距，与第二个卡片分离 */
+.card:first-of-type {
+  margin-bottom: 24px;
 }
 
 .title {
   font-weight: 700;
   letter-spacing: 0.3px;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+/* 卡片标题（力量项目等） */
+.cardTitle {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* 表单标签样式 - 使用主题文本颜色（亮色模式黑色，暗色模式白色） */
+.formLabel {
+  color: var(--mantine-color-text);
+  font-weight: 500;
 }
 
 .typeControl {
@@ -26,9 +46,19 @@
   align-items: center;
 }
 
+/* DatePickerInput 样式 */
+.datePicker {
+  width: 140px;
+}
+
+.datePicker :global(.mantine-DatePickerInput-input) {
+  font-size: 14px;
+  padding: 6px 12px;
+}
+
 .divider {
   margin-top: 4px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 /* Form rows */
@@ -64,15 +94,37 @@
 
 .dateCol {
   white-space: nowrap;
+  width: 150px;
+  text-align: center;
+}
+
+.typeCol {
   width: 120px;
+  text-align: center;
+}
+
+.detailCol {
+  text-align: center;
 }
 
 .opsCol {
-  width: 140px;
+  width: 200px;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.opsCol :global(.mantine-Group-root) {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.opsCol :global(.mantine-Button-root) {
+  margin: 0 !important;
 }
 
 .detailText {
-  color: var(--mantine-color-dimmed);
+  color: var(--mantine-color-text);
 }
 
 .emptyState {
@@ -115,35 +167,147 @@
   height: 16px;
 }
 
-/* Responsive tweaks */
+/* Responsive tweaks - 768px breakpoint */
 @media (max-width: 768px) {
   .container {
-    gap: 16px;
+    gap: 24px;
   }
-  .title {
-    font-size: 16px;
+  .card {
+    padding: 20px 24px !important;
   }
-  .opsCol {
-    width: 100px;
+  .card:first-of-type {
+    margin-bottom: 20px;
+  }
+  .title:first-of-type {
+    font-size: 22px;
+  }
+  .cardTitle {
+    font-size: 22px;
   }
   .formRow {
     padding: 12px;
-    gap: 10px;
+    gap: 4px;
   }
-  /* Make inputs within row flex nicely on tablet */
+  /* 缩小表单输入框宽度 */
+  .formRow > :global(.mantine-Group-root) {
+    flex-shrink: 0;
+    gap: 4px !important;
+  }
+  /* 项目名称组 - 覆盖内联样式 */
+  .formRow > :global(.mantine-Group-root):first-child {
+    flex: 1 !important;
+    min-width: 100px !important;
+    max-width: 160px;
+  }
   .formRow :global(.mantine-Input-wrapper) {
-    flex: 1;
-    min-width: 120px;
+    width: auto;
+    min-width: 0;
   }
-}
-
-@media (max-width: 640px) {
-  .formRow {
-    padding: 12px;
-    gap: 8px;
+  /* 项目名称输入框 */
+  .formRow :global(.mantine-TextInput-root) {
+    flex: 1;
+    min-width: 70px;
+  }
+  .formRow :global(.mantine-TextInput-input) {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+  /* NumberInput 输入框 - 覆盖内联样式 */
+  .formRow :global(.mantine-NumberInput-root) {
+    width: 60px !important;
+  }
+  .formRow :global(.mantine-NumberInput-input) {
+    font-size: 13px;
+    padding: 4px 6px;
+  }
+  /* 标签文字 */
+  .formRow :global(.mantine-Text-root) {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  /* 删除按钮 */
+  .formRow :global(.mantine-Button-root) {
+    flex-shrink: 0;
+    padding: 4px 8px;
+  }
+  .dateCol {
+    width: 90px;
+    padding: 8px 4px !important;
+    font-size: 12px;
+  }
+  .typeCol {
+    width: 70px;
+    padding: 8px 4px !important;
+  }
+  .typeCol :global(.mantine-Badge-root) {
+    font-size: 10px;
+    padding: 3px 6px;
+    height: auto;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  .detailCol {
+    min-width: 120px;
+    padding: 8px 8px !important;
   }
   .opsCol {
-    width: 110px;
+    width: 80px;
+    padding: 0 !important;
+  }
+  .opsCol :global(.mantine-Group-root) {
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+  .opsCol :global(.mantine-Button-root) {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .detailText {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    font-size: 12px;
+  }
+  .tableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* 移动端分页器更小 */
+  .pagination :global(.mantine-Pagination-root) {
+    gap: 4px;
+  }
+  .pagination :global(.mantine-Pagination-control) {
+    min-width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  .pagination :global(.mantine-Pagination-dots) {
+    min-width: 24px;
+    height: 24px;
+  }
+  .pagination :global(.mantine-SegmentedControl-root) {
+    height: 24px;
+  }
+  .pagination :global(.mantine-SegmentedControl-label) {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+  .pagination :global(.mantine-Text-root) {
+    font-size: 12px;
+  }
+
+  .datePicker {
+    width: 120px;
+  }
+  .datePicker :global(.mantine-DatePickerInput-input) {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+  /* 隐藏移动端DatePickerInput的placeholder */
+  .datePicker :global(.mantine-DatePickerInput-input)::placeholder {
+    color: transparent;
   }
 }
 
@@ -160,4 +324,12 @@
 }
 [data-mantine-color-scheme='dark'] .thead {
   background: var(--mantine-color-dark-7);
+}
+[data-mantine-color-scheme='dark'] .card {
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+}
+[data-mantine-color-scheme='dark'] .formLabel {
+  color: var(--mantine-color-text);
 }
