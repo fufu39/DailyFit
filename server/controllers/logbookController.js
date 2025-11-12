@@ -1,33 +1,42 @@
 import fs from 'fs'
-import { getDataDir, getDataFilePath } from '../utils/dataPath.js'
+import { getDataFilePath } from '../utils/dataPath.js'
 
-const DATA_DIR = getDataDir()
+// const DATA_DIR = getDataDir()
 const DATA_FILE = getDataFilePath('logbook.json')
 
-// 确保数据目录和文件存在，不存在则创建
-function ensureDataFile() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true })
-  }
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, '[]', 'utf-8')
-  }
-}
+// Vercel修复: Vercel 的文件系统是只读的。
+// 在启动时创建目录或写入文件的操作 (fs.mkdirSync, fs.writeFileSync) 会导致部署失败。
+// 你必须在部署前，手动在 server/data/ 目录中创建 logbook.json
+// function ensureDataFile() {
+//   if (!fs.existsSync(DATA_DIR)) {
+//     fs.mkdirSync(DATA_DIR, { recursive: true })
+//   }
+//   if (!fs.existsSync(DATA_FILE)) {
+//     fs.writeFileSync(DATA_FILE, '[]', 'utf-8')
+//   }
+// }
 
 // 读取所有训练记录
 function readAll() {
-  ensureDataFile()
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8')
+  // Vercel 修复: 移除了 ensureDataFile() 调用
   try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf-8')
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed : []
-  } catch {
+  } catch (error) {
+    // Vercel 调试:
+    // 如果 logbook.json 没有被 git push, fs.readFileSync 会失败
+    // 并进入这个 catch 块, 返回 []
+    console.error('读取日志数据失败 (文件是否已 git push?):', error)
     return []
   }
 }
 
 // 写入所有训练记录到文件
 function writeAll(records) {
+  // Vercel 修复: Vercel 的文件系统是只读的。
+  // 下面的 fs.writeFileSync 操作在 Vercel 上会失败, 导致 500 错误。
+  // 要使"创建/更新/删除"功能可用, 你必须将数据存储迁移到外部数据库。
   fs.writeFileSync(DATA_FILE, JSON.stringify(records, null, 2), 'utf-8')
 }
 
@@ -68,7 +77,8 @@ export const list = async (req, res) => {
     const start = (currentPage - 1) * pageSize
     const data = all.slice(start, start + pageSize)
     res.json({ success: true, data: { data, page: currentPage, pageSize, total, totalPages } })
-  } catch {
+  } catch (error) {
+    console.error('读取日志列表错误:', error)
     res.status(500).json({ success: false, message: '读取日志失败' })
   }
 }
@@ -81,7 +91,8 @@ export const getOne = async (req, res) => {
     const found = all.find((r) => r.id === id)
     if (!found) return res.status(404).json({ success: false, message: '未找到记录' })
     res.json({ success: true, data: found })
-  } catch {
+  } catch (error) {
+    console.error('读取单条日志错误:', error)
     res.status(500).json({ success: false, message: '读取记录失败' })
   }
 }
@@ -124,9 +135,11 @@ export const create = async (req, res) => {
     }
     const all = readAll()
     all.unshift(record)
-    writeAll(all)
+    writeAll(all) // Vercel 修复: 此处调用 writeAll 会失败
     res.status(201).json({ success: true, data: record })
-  } catch {
+  } catch (error) {
+    // Vercel 调试: 当 writeAll 失败时, 错误会在这里被捕获
+    console.error('创建记录错误:', error)
     res.status(500).json({ success: false, message: '创建记录失败' })
   }
 }
@@ -141,9 +154,11 @@ export const update = async (req, res) => {
     if (idx === -1) return res.status(404).json({ success: false, message: '未找到记录' })
     const updated = { ...all[idx], ...partial, id: all[idx].id }
     all[idx] = updated
-    writeAll(all)
+    writeAll(all) // Vercel 修复: 此处调用 writeAll 会失败
     res.json({ success: true, data: updated })
-  } catch {
+  } catch (error) {
+    // Vercel 调试: 当 writeAll 失败时, 错误会在这里被捕获
+    console.error('更新记录错误:', error)
     res.status(500).json({ success: false, message: '更新记录失败' })
   }
 }
@@ -157,9 +172,11 @@ export const remove = async (req, res) => {
     if (next.length === all.length) {
       return res.status(404).json({ success: false, message: '未找到记录' })
     }
-    writeAll(next)
+    writeAll(next) // Vercel 修复: 此处调用 writeAll 会失败
     res.json({ success: true })
-  } catch {
+  } catch (error) {
+    // Vercel 调试: 当 writeAll 失败时, 错误会在这里被捕获
+    console.error('删除记录错误:', error)
     res.status(500).json({ success: false, message: '删除记录失败' })
   }
 }

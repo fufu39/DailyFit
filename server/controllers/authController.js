@@ -1,41 +1,46 @@
 // 业务逻辑控制器
 // 负责处理具体请求逻辑，即从路由接收请求→操作数据（如读写JSON文件或数据库）→返回响应数据
 import fs from 'fs/promises'
-import { getDataDir, getDataFilePath } from '../utils/dataPath.js'
+import { getDataFilePath } from '../utils/dataPath.js'
 
 // 用户数据文件路径
 const usersFilePath = getDataFilePath('users.json')
 
 // 确保 data 目录存在
-const dataDir = getDataDir()
+// const dataDir = getDataDir()
 
-const initializeUsersFile = async () => {
-  try {
-    await fs.access(dataDir)
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true })
-  }
-
-  try {
-    await fs.access(usersFilePath)
-  } catch {
-    const defaultUsers = [
-      {
-        id: 1,
-        username: 'admin',
-        password: '1',
-        email: 'admin@example.com',
-        name: '管理员',
-      },
-    ]
-    await fs.writeFile(usersFilePath, JSON.stringify(defaultUsers, null, 2), 'utf8')
-  }
-}
-
-// 初始化用户数据文件
-initializeUsersFile().catch((error) => {
-  console.error('初始化用户数据文件失败:', error)
-})
+// Vercel 修复: Vercel 的文件系统是只读的 (Read-Only)。
+// 在启动时创建目录或写入文件的操作 (fs.mkdir, fs.writeFile) 会导致部署失败。
+// 你必须在部署前，手动在 server/data/ 目录中创建 users.json 和 logbook.json
+// 然后将它们 git add / commit / push 到 GitHub。
+//
+// const initializeUsersFile = async () => {
+//   try {
+//     await fs.access(dataDir)
+//   } catch {
+//     await fs.mkdir(dataDir, { recursive: true })
+//   }
+//
+//   try {
+//     await fs.access(usersFilePath)
+//   } catch {
+//     const defaultUsers = [
+//       {
+//         id: 1,
+//         username: 'admin',
+//         password: '1',
+//         email: 'admin@example.com',
+//         name: '管理员',
+//       },
+//     ]
+//     await fs.writeFile(usersFilePath, JSON.stringify(defaultUsers, null, 2), 'utf8')
+//   }
+// }
+//
+// // 初始化用户数据文件
+// initializeUsersFile().catch((error) => {
+//   console.error('初始化用户数据文件失败:', error)
+// })
 
 // 读取用户数据（异步）
 export const readUsers = async () => {
@@ -43,7 +48,10 @@ export const readUsers = async () => {
     const data = await fs.readFile(usersFilePath, 'utf8')
     return JSON.parse(data)
   } catch (error) {
-    console.error('读取用户数据失败:', error)
+    // Vercel 调试:
+    // 如果 users.json 文件没有被 git push 到仓库中, fs.readFile 会失败
+    // 并进入这个 catch 块, 返回 [], 导致登录时 401 错误
+    console.error('读取用户数据失败 (文件是否已 git push?):', error)
     return []
   }
 }
@@ -52,23 +60,20 @@ export const readUsers = async () => {
 const validateInput = (username, password) => {
   // 去除首尾空格
   const cleanUsername = typeof username === 'string' ? username.trim() : ''
-  const cleanPassword = typeof password === 'string' ? password.trim() : ''
+  const cleanPassword = typeof password === 'string' ? password.trim() : '' // 基本验证
 
-  // 基本验证
   if (!cleanUsername || !cleanPassword) {
     return { valid: false, error: '用户名和密码不能为空' }
-  }
+  } // 长度验证
 
-  // 长度验证
   if (cleanUsername.length < 3 || cleanUsername.length > 20) {
     return { valid: false, error: '用户名长度必须在3-20个字符之间' }
   }
 
   if (cleanPassword.length < 1 || cleanPassword.length > 100) {
     return { valid: false, error: '密码长度必须在1-100个字符之间' }
-  }
+  } // 用户名格式验证（只允许字母、数字、下划线）
 
-  // 用户名格式验证（只允许字母、数字、下划线）
   if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
     return { valid: false, error: '用户名只能包含字母、数字和下划线' }
   }
@@ -79,21 +84,18 @@ const validateInput = (username, password) => {
 // 登录控制器
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body
+    const { username, password } = req.body // 输入验证
 
-    // 输入验证
     const validation = validateInput(username, password)
     if (!validation.valid) {
       return res.status(400).json({
         success: false,
         message: validation.error,
       })
-    }
+    } // 读取用户数据
 
-    // 读取用户数据
-    const users = await readUsers()
+    const users = await readUsers() // 查找用户
 
-    // 查找用户
     const user = users.find(
       (u) => u.username === validation.username && u.password === validation.password
     )
@@ -103,9 +105,7 @@ export const login = async (req, res) => {
         success: false,
         message: '用户名或密码错误',
       })
-    }
-
-    // 登录成功，返回用户信息（不包含密码）
+    } // 登录成功，返回用户信息（不包含密码）
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     const { password: _, ...userWithoutPassword } = user
 
@@ -144,9 +144,8 @@ export const verifyToken = async (req, res) => {
         success: false,
         message: '未提供token',
       })
-    }
+    } // 简单的token验证（实际应用中应使用JWT）
 
-    // 简单的token验证（实际应用中应使用JWT）
     const tokenParts = token.split('_')
     if (tokenParts.length !== 3 || tokenParts[0] !== 'token') {
       return res.status(401).json({
@@ -223,8 +222,7 @@ export const getProfile = async (req, res) => {
   try {
     const result = await getUserFromRequest(req, res)
     if (!result) return
-    const { user } = result
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    const { user } = result // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     const { password: _, ...userWithoutPassword } = user
     res.json({
       success: true,
@@ -243,9 +241,8 @@ export const updateProfile = async (req, res) => {
     if (!result) return
     const { users, user } = result
 
-    const { name, email, currentPassword, newPassword } = req.body || {}
+    const { name, email, currentPassword, newPassword } = req.body || {} // 基础校验
 
-    // 基础校验
     const cleanName = typeof name === 'string' ? name.trim() : ''
     const cleanEmail = typeof email === 'string' ? email.trim() : ''
     if (!cleanName || !cleanEmail) {
@@ -253,9 +250,8 @@ export const updateProfile = async (req, res) => {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       return res.status(400).json({ success: false, message: '邮箱格式不正确' })
-    }
+    } // 如果要修改密码，需要提供 currentPassword 与 newPassword
 
-    // 如果要修改密码，需要提供 currentPassword 与 newPassword
     if ((currentPassword || newPassword) && (!currentPassword || !newPassword)) {
       return res.status(400).json({ success: false, message: '修改密码需同时提供当前密码与新密码' })
     }
@@ -264,19 +260,19 @@ export const updateProfile = async (req, res) => {
     }
     if (newPassword && (typeof newPassword !== 'string' || newPassword.trim().length < 1)) {
       return res.status(400).json({ success: false, message: '新密码不能为空' })
-    }
+    } // 更新信息
 
-    // 更新信息
     user.name = cleanName
     user.email = cleanEmail
     if (newPassword) {
       user.password = newPassword.trim()
-    }
+    } // 写回文件
 
-    // 写回文件
-    await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8')
+    // Vercel 修复: Vercel 的文件系统是只读的。
+    // 下面的 fs.writeFile 操作在 Vercel 上会失败, 导致 500 错误。
+    // 要使"更新资料"功能可用, 你必须将数据存储迁移到外部数据库 (如 Vercel KV, Vercel Postgres 或 MongoDB)。
+    await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8') // 返回去除密码后的用户信息
 
-    // 返回去除密码后的用户信息
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     const { password: _, ...userWithoutPassword } = user
     res.json({
@@ -285,6 +281,8 @@ export const updateProfile = async (req, res) => {
       data: { user: userWithoutPassword },
     })
   } catch (error) {
+    // Vercel 调试:
+    // 当上面的 fs.writeFile 失败时, 错误会在这里被捕获
     console.error('更新用户资料错误:', error)
     res.status(500).json({ success: false, message: '服务器内部错误' })
   }
