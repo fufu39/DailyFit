@@ -22,29 +22,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 步骤2: 设置 Node.js
+      # 步骤2: 安装 pnpm
+      # 你的项目使用 pnpm，我们必须先把它安装好
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      # 步骤3: 设置 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm' # 启用 pnpm 缓存，加速安装
 
-      # 步骤3: 安装依赖
+      # 步骤4: 安装依赖
       - name: Install Dependencies
         run: pnpm install
 
-      # 步骤4: 安装 Vercel CLI
+      # 步骤5: 安装 Vercel CLI
       - name: Install Vercel CLI
         run: pnpm install -g vercel@latest
 
-      # 步骤5: 拉取 Vercel 配置
+      # 步骤6: 拉取 Vercel 配置
       - name: Pull Vercel Project Settings
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 步骤6: 构建项目
+      # 步骤7: 构建项目
       - name: Build Project
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 步骤7: 部署到生产环境
+      # 步骤8: 部署到生产环境
       - name: Deploy Project to Production
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
