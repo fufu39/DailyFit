@@ -1,52 +1,33 @@
-// Vercel Serverless Function 入口文件
-// 将 Express 应用转换为 Serverless Function
+// 整个服务的入口文件，启动 Express 服务、注册路由、中间件等
 import express from 'express'
 import fs from 'fs'
-import { setupMiddleware } from '../server/middleware/index.js'
-import authRoutes from '../server/routes/auth.js'
-import dashboardRoutes from '../server/routes/dashboard.js'
-import logbookRoutes from '../server/routes/logbook.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { setupMiddleware } from './middleware/index.js'
+import authRoutes from './routes/auth.js'
+import dashboardRoutes from './routes/dashboard.js'
+import logbookRoutes from './routes/logbook.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename) // 获取当前文件所在目录的路径
 
 const app = express() // 创建Express应用实例
+const PORT = process.env.PORT || 3000 // 设置服务器监听端口
 setupMiddleware(app)
 
-// 启动时确保数据文件存在
-;(async () => {
+// 启动时确保日志数据文件存在
+;(() => {
   try {
-    // 使用工具函数获取数据目录路径
-    const { getDataFilePath } = await import('../server/utils/dataPath.js')
-    const logbookFile = getDataFilePath('logbook.json')
-    const usersFile = getDataFilePath('users.json')
-
-    // 警告：你不能在 Vercel 上 *写入* 或 *创建* 文件
-    // 下面的 fs.mkdirSync 和 fs.writeFileSync 必须被注释掉，否则 API 会崩溃
-    // if (!fs.existsSync(dataDir)) {
-    //   fs.mkdirSync(dataDir, { recursive: true })
-    // }
-    // if (!fs.existsSync(logbookFile)) {
-    //   fs.writeFileSync(logbookFile, '[]', 'utf-8')
-    // }
-    // if (!fs.existsSync(usersFile)) {
-    //   const defaultUsers = [
-    //     {
-    //       id: 1,
-    //       username: 'admin',
-    //       password: '1',
-    //       email: 'admin@example.com',
-    //       name: '管理员',
-    //     },
-    //   ]
-    //   fs.writeFileSync(usersFile, JSON.stringify(defaultUsers, null, 2), 'utf-8')
-    // }
-
-    // 你必须在部署前，在你的 'server/data' 目录中【手动】创建'logbook.json' (内容为 []) 和 'users.json' (内容为默认用户数组)
-    // Vercel 只会 读取 你仓库中的文件
-    if (!fs.existsSync(logbookFile) || !fs.existsSync(usersFile)) {
-      console.warn('数据文件 (logbook.json / users.json) 未找到！')
-      console.warn("请在部署前，在 'server/data/' 目录中手动创建这些文件。")
+    const dataDir = path.join(__dirname, 'data')
+    const logbookFile = path.join(dataDir, 'logbook.json')
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+    if (!fs.existsSync(logbookFile)) {
+      fs.writeFileSync(logbookFile, '[]', 'utf-8')
     }
   } catch (e) {
-    console.error('初始化数据文件失败 (这在 Vercel 上是预期的，因为文件系统只读):', e)
+    console.error('初始化日志数据文件失败:', e)
   }
 })()
 
@@ -67,9 +48,41 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    environment: process.env.VERCEL ? 'vercel' : 'local',
+    uptime: process.uptime(),
   })
 })
+
+// 在生产环境中提供静态文件
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '..', 'dist')
+  app.use(express.static(distPath))
+
+  // 所有非 API 路由都返回 index.html（支持前端路由）
+  app.get('*', (req, res) => {
+    // 排除 API 路由
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({
+        success: false,
+        message: 'API 路由不存在',
+      })
+    }
+    res.sendFile(path.join(distPath, 'index.html'))
+  })
+}
+// 开发环境：只提供 API 服务，前端由 Vite 开发服务器处理
+else {
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'Express 服务器运行中，前端请访问 Vite 开发服务器',
+      api: {
+        login: 'POST /api/login',
+        verify: 'GET /api/auth/verify',
+        dashboard: 'GET /api/dashboard',
+        health: 'GET /api/health',
+      },
+    })
+  })
+}
 
 // 404 处理 - API 路由
 app.use('/api/*', (req, res) => {
@@ -81,9 +94,8 @@ app.use('/api/*', (req, res) => {
 })
 
 // 全局错误处理中间件
-// Express 错误处理中间件必须包含 4 个参数，即使不使用 next
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err, req, res, _next) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+app.use((err, req, res, next) => {
   console.error('未处理的错误:', err)
 
   // 如果是开发环境，返回详细错误信息
@@ -102,9 +114,40 @@ app.use((err, req, res, _next) => {
   })
 })
 
-// 注意：在 Serverless 环境中，不需要设置 process.on 监听器
-// Vercel 会自动处理未捕获的异常和 Promise 拒绝
+// 处理未捕获的 Promise 拒绝
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('未处理的 Promise 拒绝:', reason)
+})
 
-// 关键改动：导出 app 实例，而不是启动服务器
-// Vercel 会接管 app 实例并处理请求
-export default app
+// 处理未捕获的异常
+process.on('uncaughtException', (error) => {
+  console.error('未捕获的异常:', error)
+  process.exit(1)
+})
+
+// 启动服务器
+const server = app.listen(PORT, () => {
+  console.log(`服务器运行在 http://localhost:${PORT}`)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('处于开发模式中...')
+  }
+})
+
+// 优雅关闭
+const gracefulShutdown = (signal) => {
+  console.log(`收到 ${signal} 信号，正在关闭服务器...`)
+  server.close(() => {
+    console.log('服务器已关闭')
+    process.exit(0)
+  })
+
+  // 如果10秒后还没关闭，强制退出
+  setTimeout(() => {
+    console.error('强制关闭服务器')
+    process.exit(1)
+  }, 10000)
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))

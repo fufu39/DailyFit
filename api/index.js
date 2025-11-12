@@ -29,6 +29,13 @@ setupMiddleware(app)
       const defaultUsers = [
         {
           id: 1,
+          username: 'fufu39',
+          password: '1',
+          email: 'fufu39@qq.com',
+          name: 'fufu39',
+        },
+        {
+          id: 2,
           username: 'admin',
           password: '1',
           email: 'admin@example.com',
