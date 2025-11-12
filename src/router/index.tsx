@@ -10,7 +10,6 @@ const LoginPage = lazy(() => import('../pages/Login/LoginPage'))
 const DashboardPage = lazy(() => import('../pages/Dashboard/DashboardPage'))
 const HomePage = lazy(() => import('../pages/Home/HomePage'))
 const LogbookPage = lazy(() => import('../pages/Logbook/LogbookPage'))
-const LogbookDetailPage = lazy(() => import('../pages/Logbook/LogbookDetailPage'))
 const ProfilePage = lazy(() => import('../pages/Profile/ProfilePage'))
 const NotFoundPage = lazy(() => import('../pages/NotFound/NotFoundPage'))
 
@@ -88,7 +87,6 @@ export const routesConfig: CustomRouteObject[] = [
   // 私有路由
   { path: '/dashboard', element: <DashboardPage />, requiresAuth: true, hasLayout: true },
   { path: '/logbook', element: <LogbookPage />, requiresAuth: true, hasLayout: true },
-  { path: '/logbook/:id', element: <LogbookDetailPage />, requiresAuth: true, hasLayout: true },
   { path: '/profile', element: <ProfilePage />, requiresAuth: true, hasLayout: true },
   // 404路由
   { path: '*', hasLayout: false, element: <NotFoundPage /> },
@@ -102,7 +100,11 @@ const AppRouter: React.FC = () => {
           key={route.path}
           path={route.path}
           element={
-            <ElementWrapper element={route.element} requiresAuth={route.requiresAuth} hasLayout={route.hasLayout} />
+            <ElementWrapper
+              element={route.element}
+              requiresAuth={route.requiresAuth}
+              hasLayout={route.hasLayout}
+            />
           }
         />
       ))}
