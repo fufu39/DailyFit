@@ -18,6 +18,7 @@ import {
   Tooltip,
   Table,
   ScrollArea,
+  useComputedColorScheme,
 } from '@mantine/core'
 import {
   IconEye,
@@ -99,6 +100,9 @@ export default function DashboardPage() {
   const [lottieData, setLottieData] = useState<LottieAnimationData | null>(null)
   const [showLottie, setShowLottie] = useState(true)
   const [openedModal, setOpenedModal] = useState<string | null>(null)
+  const colorScheme = useComputedColorScheme('light', {
+    getInitialValueInEffect: true,
+  })
 
   // 训练日历状态
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
@@ -397,7 +401,7 @@ export default function DashboardPage() {
         chart.dispose()
       }
     }
-  }, [data])
+  }, [data, colorScheme])
 
   // 初始化周训练时长柱状图
   useEffect(() => {
@@ -478,7 +482,7 @@ export default function DashboardPage() {
         chart.dispose()
       }
     }
-  }, [data])
+  }, [data, colorScheme])
 
   // 初始化运动类型分布饼图
   useEffect(() => {
@@ -550,7 +554,7 @@ export default function DashboardPage() {
         chart.dispose()
       }
     }
-  }, [data])
+  }, [data, colorScheme])
 
   // 初始化训练部位分布雷达图
   useEffect(() => {
@@ -572,8 +576,7 @@ export default function DashboardPage() {
     const maxValue = Math.max(...data.bodyPartDistribution.map((item) => item.value), 10)
     const roundedMax = Math.ceil(maxValue / 10) * 10
     // 依据 Mantine 的配色方案调整文字颜色
-    const root = document.documentElement
-    const isDark = root.getAttribute('data-mantine-color-scheme') === 'dark'
+    const isDark = colorScheme === 'dark'
     const axisNameColor = isDark ? '#e9ecef' : '#495057'
 
     const option: EChartsOption = {
@@ -653,7 +656,7 @@ export default function DashboardPage() {
         chart.dispose()
       }
     }
-  }, [data])
+  }, [data, colorScheme])
 
   // 生成 GitHub 风格的热力图
   const renderHeatmapCalendar = () => {

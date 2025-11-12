@@ -1,48 +1,5 @@
 [
   {
-    "id": "lg_1762928392423_yp4jhe",
-    "date": "2025-11-12",
-    "type": "strength",
-    "strengthItems": [
-      {
-        "id": "hxvwjsj1phh",
-        "name": "",
-        "sets": 8,
-        "reps": 10,
-        "weight": 2.5
-      }
-    ],
-    "createdAt": 1762928392423
-  },
-  {
-    "id": "lg_1762926884209_049dcs",
-    "date": "2025-11-12",
-    "type": "strength",
-    "strengthItems": [
-      {
-        "id": "z3afsu9nwfp",
-        "name": "",
-        "sets": 3,
-        "reps": 10,
-        "weight": 10000
-      }
-    ],
-    "createdAt": 1762926884209
-  },
-  {
-    "id": "lg_1762925558607_c1cssv",
-    "date": "2025-11-12",
-    "type": "functional",
-    "functionalItems": [
-      {
-        "id": "uirqwsvcl1",
-        "activity": "",
-        "durationMinutes": 20
-      }
-    ],
-    "createdAt": 1762925558607
-  },
-  {
     "id": "lg_1762925306399_dc8j9m",
     "date": "2025-11-12",
     "type": "cardio",
