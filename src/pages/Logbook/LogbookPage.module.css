@@ -78,6 +78,192 @@
   color: var(--mantine-color-red-6);
 }
 
+.drawerContent {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.02));
+  box-shadow:
+    0 18px 44px rgba(31, 78, 216, 0.16),
+    0 8px 20px rgba(37, 99, 235, 0.08);
+  overflow: hidden;
+}
+
+.drawerHeader {
+  background: linear-gradient(135deg, var(--mantine-color-blue-7), var(--mantine-color-blue-4));
+  padding: 24px;
+  border-bottom: none;
+}
+
+.drawerTitle {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.drawerClose {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.drawerBody {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 32px 28px;
+  overflow-y: auto;
+}
+
+.drawerInnerBox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.drawerForm {
+  gap: 32px;
+}
+
+.drawerSection {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  padding: 20px 22px;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 10px 24px rgba(37, 99, 235, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.drawerSectionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mantine-color-blue-6);
+}
+
+.drawerSectionSubtitle {
+  font-size: 13px;
+  color: var(--mantine-color-blue-4);
+}
+
+.drawerItemCard {
+  border-radius: 14px;
+  padding: 18px 20px;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: linear-gradient(160deg, rgba(191, 219, 254, 0.22), rgba(255, 255, 255, 0.95));
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
+}
+
+.drawerItemTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mantine-color-blue-7);
+  letter-spacing: 0.2px;
+}
+
+.drawerFieldLabel {
+  font-weight: 600;
+  color: var(--mantine-color-blue-6);
+  letter-spacing: 0.2px;
+}
+
+.drawerInput {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.drawerActions {
+  padding: 12px 0 4px;
+}
+
+.drawerHint {
+  color: var(--mantine-color-blue-4);
+  font-size: 12px;
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerContent {
+  position: relative;
+  background:
+    radial-gradient(circle at 18% -20%, rgba(92, 128, 196, 0.22), transparent 58%),
+    linear-gradient(152deg, rgba(18, 21, 32, 0.98), rgba(22, 26, 38, 0.98));
+  border: 1px solid rgba(84, 108, 150, 0.22);
+  box-shadow:
+    0 28px 60px rgba(8, 10, 18, 0.72),
+    0 16px 28px rgba(8, 10, 18, 0.44);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerContent::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(168deg, rgba(120, 156, 220, 0.14), transparent 55%),
+    linear-gradient(0deg, rgba(10, 12, 20, 0.1), transparent 45%);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerHeader {
+  background: linear-gradient(128deg, rgba(54, 94, 174, 0.94), rgba(33, 52, 108, 0.96));
+  border-bottom: none;
+  box-shadow:
+    inset 0 -1px 0 rgba(96, 132, 198, 0.32),
+    inset 0 1px 0 rgba(210, 224, 244, 0.14);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerBody {
+  background: linear-gradient(170deg, rgba(24, 28, 40, 0.98), rgba(18, 21, 32, 0.98));
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerSection {
+  background: linear-gradient(154deg, rgba(30, 34, 46, 0.98), rgba(24, 27, 38, 0.98));
+  border-color: rgba(112, 138, 182, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(202, 214, 232, 0.18),
+    0 0 0 1px rgba(92, 116, 162, 0.24),
+    0 18px 30px rgba(8, 10, 18, 0.56);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerItemCard {
+  background: linear-gradient(150deg, rgba(42, 48, 66, 0.94), rgba(28, 32, 46, 0.98));
+  border-color: rgba(130, 156, 204, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(214, 224, 240, 0.18),
+    0 12px 26px rgba(8, 12, 24, 0.5);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerSectionTitle {
+  color: rgba(232, 238, 248, 0.96);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerSectionSubtitle {
+  color: rgba(184, 198, 220, 0.74);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerItemTitle {
+  color: rgba(222, 230, 244, 0.92);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerFieldLabel {
+  color: rgba(198, 208, 226, 0.9);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerInput {
+  background: rgba(30, 34, 48, 0.96);
+  border-color: rgba(124, 150, 198, 0.32);
+  color: rgba(236, 240, 248, 0.96);
+  box-shadow: inset 0 1px 0 rgba(204, 214, 232, 0.18);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerHint {
+  color: rgba(172, 188, 212, 0.68);
+}
+
+:global([data-mantine-color-scheme='dark']) .drawerInput::placeholder {
+  color: rgba(170, 188, 216, 0.46);
+}
+
 /* Table */
 .tableContainer {
   border: 1px solid var(--mantine-color-gray-3);
@@ -309,6 +495,22 @@
   .datePicker :global(.mantine-DatePickerInput-input)::placeholder {
     color: transparent;
   }
+
+  .drawerHeader {
+    padding: 20px 24px;
+  }
+  .drawerBody {
+    padding: 24px 18px;
+  }
+  .drawerSection {
+    padding: 16px;
+  }
+  .drawerForm {
+    gap: 24px;
+  }
+  .drawerItemCard {
+    padding: 16px;
+  }
 }
 
 /* Dark mode refinements */
@@ -332,4 +534,31 @@
 }
 [data-mantine-color-scheme='dark'] .formLabel {
   color: var(--mantine-color-text);
+}
+
+[data-mantine-color-scheme='dark'] .drawerContent {
+  background:
+    radial-gradient(circle at 18% -20%, rgba(92, 128, 196, 0.22), transparent 58%),
+    linear-gradient(152deg, rgba(18, 21, 32, 0.98), rgba(22, 26, 38, 0.98));
+}
+[data-mantine-color-scheme='dark'] .drawerBody {
+  background: linear-gradient(170deg, rgba(24, 28, 40, 0.98), rgba(18, 21, 32, 0.98));
+}
+[data-mantine-color-scheme='dark'] .drawerSection {
+  background: linear-gradient(154deg, rgba(30, 34, 46, 0.98), rgba(24, 27, 38, 0.98));
+  border-color: rgba(112, 138, 182, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(202, 214, 232, 0.18),
+    0 0 0 1px rgba(92, 116, 162, 0.24),
+    0 18px 30px rgba(8, 10, 18, 0.56);
+}
+[data-mantine-color-scheme='dark'] .drawerItemCard {
+  background: linear-gradient(150deg, rgba(42, 48, 66, 0.94), rgba(28, 32, 46, 0.98));
+  border-color: rgba(130, 156, 204, 0.28);
+}
+[data-mantine-color-scheme='dark'] .drawerFieldLabel {
+  color: rgba(198, 208, 226, 0.9);
+}
+[data-mantine-color-scheme='dark'] .drawerHint {
+  color: rgba(172, 188, 212, 0.68);
 }

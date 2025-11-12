@@ -211,7 +211,8 @@ export default function DashboardPage() {
         exitTimeout = window.setTimeout(() => {
           setIsFirstLoad(false)
         }, 300)
-      }, 1500)
+        // 设置Lottie动画延迟
+      }, 0)
       return () => {
         window.clearTimeout(timeout)
         if (exitTimeout !== null) {

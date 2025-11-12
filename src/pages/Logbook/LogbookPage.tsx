@@ -1,25 +1,26 @@
 import { useEffect, useState } from 'react'
 import {
+  Badge,
+  Box,
   Button,
   Card,
+  Divider,
+  Drawer,
   Group,
+  LoadingOverlay,
+  Modal,
+  NumberInput,
+  Pagination,
   SegmentedControl,
   Stack,
+  Table,
   Text,
   TextInput,
-  NumberInput,
-  Table,
-  Pagination,
-  Modal,
-  Box,
-  Divider,
-  Badge,
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { modals } from '@mantine/modals'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
 import { IconPlus, IconTrash, IconEdit } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import type {
@@ -30,7 +31,13 @@ import type {
   FunctionalItem,
   FlexibilityItem,
 } from '../../utils/logbook'
-import { formatDateISO, listPaginated, saveRecord } from '../../utils/logbook'
+import {
+  formatDateISO,
+  listPaginated,
+  saveRecord,
+  updateRecord,
+  parseISOToDate,
+} from '../../utils/logbook'
 import { IconCheck } from '@tabler/icons-react'
 import classes from './LogbookPage.module.css'
 import { useMediaQuery } from '@mantine/hooks'
@@ -45,6 +52,14 @@ type FormValues = {
   cardioItems: CardioFormItem[]
   functionalItems: { activity: string; durationMinutes: number }[]
   flexibilityItems: { activity: string; durationMinutes: number }[]
+}
+
+type EditFormValues = {
+  date: Date | string | null
+  strengthItems: StrengthItem[]
+  cardioItems: CardioItem[]
+  functionalItems: FunctionalItem[]
+  flexibilityItems: FlexibilityItem[]
 }
 
 function usePaginatedLogbook(pageSize = 5) {
@@ -84,11 +99,48 @@ const rowVariants = {
   exit: { opacity: 0, height: 0 },
 }
 
+const createEmptyEditValues = (): EditFormValues => ({
+  date: null,
+  strengthItems: [],
+  cardioItems: [],
+  functionalItems: [],
+  flexibilityItems: [],
+})
+
+const createDefaultStrengthItem = (): StrengthItem => ({
+  id: Math.random().toString(36).slice(2),
+  name: '',
+  sets: 3,
+  reps: 10,
+  weight: 0,
+})
+
+const createDefaultCardioItem = (): CardioItem => ({
+  id: Math.random().toString(36).slice(2),
+  activity: '',
+  durationMinutes: 30,
+  distanceKm: 5,
+})
+
+const createDefaultFunctionalItem = (): FunctionalItem => ({
+  id: Math.random().toString(36).slice(2),
+  activity: '',
+  durationMinutes: 20,
+})
+
+const createDefaultFlexibilityItem = (): FlexibilityItem => ({
+  id: Math.random().toString(36).slice(2),
+  activity: '',
+  durationMinutes: 15,
+})
+
 export default function LogbookPage() {
-  const navigate = useNavigate()
   const [pageSize, setPageSize] = useState(5)
-  const { data, page, setPage, totalPages, total, reload } = usePaginatedLogbook(pageSize)
+  const { data, page, setPage, totalPages, total, reload, loading } = usePaginatedLogbook(pageSize)
   const isTablet = useMediaQuery('(max-width: 768px)')
+  const [editDrawerOpened, setEditDrawerOpened] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<LogbookRecord | null>(null)
+  const [updating, setUpdating] = useState(false)
 
   const {
     control,
@@ -106,6 +158,15 @@ export default function LogbookPage() {
       functionalItems: [{ activity: '', durationMinutes: 20 }],
       flexibilityItems: [{ activity: '', durationMinutes: 15 }],
     },
+  })
+
+  const {
+    control: editControl,
+    register: editRegister,
+    reset: resetEditForm,
+    handleSubmit: handleEditSubmit,
+  } = useForm<EditFormValues>({
+    defaultValues: createEmptyEditValues(),
   })
 
   const type = watch('type')
@@ -150,7 +211,179 @@ export default function LogbookPage() {
     keyName: 'key', // 使用key作为React的key
   })
 
+  const { fields: editStrengthFields } = useFieldArray({
+    control: editControl,
+    name: 'strengthItems',
+    keyName: 'key',
+  })
+
+  const { fields: editCardioFields } = useFieldArray({
+    control: editControl,
+    name: 'cardioItems',
+    keyName: 'key',
+  })
+
+  const { fields: editFunctionalFields } = useFieldArray({
+    control: editControl,
+    name: 'functionalItems',
+    keyName: 'key',
+  })
+
+  const { fields: editFlexibilityFields } = useFieldArray({
+    control: editControl,
+    name: 'flexibilityItems',
+    keyName: 'key',
+  })
+
   const [modalOpened, setModalOpened] = useState(false)
+  const editType = editingRecord?.type
+
+  const closeEditDrawer = () => {
+    setEditDrawerOpened(false)
+    setEditingRecord(null)
+    resetEditForm(createEmptyEditValues())
+  }
+
+  const onEditSubmit = handleEditSubmit(async (values) => {
+    if (!editingRecord || !editType || !values.date) {
+      return
+    }
+    setUpdating(true)
+    try {
+      const isoDate = values.date instanceof Date ? formatDateISO(values.date) : values.date
+      let payload: Partial<LogbookRecord>
+
+      if (editType === 'strength') {
+        if (values.strengthItems.length === 0) {
+          modals.open({
+            title: '无法保存',
+            children: <Text size="sm">至少保留一个力量训练项目。</Text>,
+            centered: true,
+          })
+          return
+        }
+        payload = {
+          date: isoDate,
+          type: editType,
+          strengthItems: values.strengthItems.map((item) => ({
+            ...item,
+            id: item.id || createDefaultStrengthItem().id,
+          })),
+          cardioItems: undefined,
+          functionalItems: undefined,
+          flexibilityItems: undefined,
+        }
+      } else if (editType === 'cardio') {
+        if (values.cardioItems.length === 0) {
+          modals.open({
+            title: '无法保存',
+            children: <Text size="sm">至少保留一个有氧训练项目。</Text>,
+            centered: true,
+          })
+          return
+        }
+        payload = {
+          date: isoDate,
+          type: editType,
+          strengthItems: undefined,
+          cardioItems: values.cardioItems.map((item) => ({
+            ...item,
+            id: item.id || createDefaultCardioItem().id,
+          })),
+          functionalItems: undefined,
+          flexibilityItems: undefined,
+        }
+      } else if (editType === 'functional') {
+        if (values.functionalItems.length === 0) {
+          modals.open({
+            title: '无法保存',
+            children: <Text size="sm">至少保留一个功能性训练项目。</Text>,
+            centered: true,
+          })
+          return
+        }
+        payload = {
+          date: isoDate,
+          type: editType,
+          strengthItems: undefined,
+          cardioItems: undefined,
+          functionalItems: values.functionalItems.map((item) => ({
+            ...item,
+            id: item.id || createDefaultFunctionalItem().id,
+          })),
+          flexibilityItems: undefined,
+        }
+      } else {
+        if (values.flexibilityItems.length === 0) {
+          modals.open({
+            title: '无法保存',
+            children: <Text size="sm">至少保留一个柔韧性训练项目。</Text>,
+            centered: true,
+          })
+          return
+        }
+        payload = {
+          date: isoDate,
+          type: editType,
+          strengthItems: undefined,
+          cardioItems: undefined,
+          functionalItems: undefined,
+          flexibilityItems: values.flexibilityItems.map((item) => ({
+            ...item,
+            id: item.id || createDefaultFlexibilityItem().id,
+          })),
+        }
+      }
+
+      const updated = await updateRecord(editingRecord.id, payload)
+      if (!updated) {
+        modals.open({
+          title: '更新失败',
+          children: <Text size="sm">未找到该训练记录，请刷新后重试。</Text>,
+          centered: true,
+        })
+        return
+      }
+      reload()
+      closeEditDrawer()
+    } catch (error) {
+      console.error(error)
+      modals.open({
+        title: '更新失败',
+        children: <Text size="sm">保存过程中出现错误，请稍后再试。</Text>,
+        centered: true,
+      })
+    } finally {
+      setUpdating(false)
+    }
+  })
+
+  useEffect(() => {
+    if (!editingRecord) {
+      resetEditForm(createEmptyEditValues())
+      return
+    }
+    const strengthItems = (editingRecord.strengthItems || []).map((item) => ({ ...item }))
+    const cardioItems = (editingRecord.cardioItems || []).map((item) => ({ ...item }))
+    const functionalItems = (editingRecord.functionalItems || []).map((item) => ({ ...item }))
+    const flexibilityItems = (editingRecord.flexibilityItems || []).map((item) => ({ ...item }))
+    if (editingRecord.type === 'strength' && strengthItems.length === 0) {
+      strengthItems.push(createDefaultStrengthItem())
+    } else if (editingRecord.type === 'cardio' && cardioItems.length === 0) {
+      cardioItems.push(createDefaultCardioItem())
+    } else if (editingRecord.type === 'functional' && functionalItems.length === 0) {
+      functionalItems.push(createDefaultFunctionalItem())
+    } else if (editingRecord.type === 'flexibility' && flexibilityItems.length === 0) {
+      flexibilityItems.push(createDefaultFlexibilityItem())
+    }
+    resetEditForm({
+      date: parseISOToDate(editingRecord.date),
+      strengthItems,
+      cardioItems,
+      functionalItems,
+      flexibilityItems,
+    })
+  }, [editingRecord, resetEditForm])
 
   const getTypeLabel = (t: LogType): string => {
     switch (t) {
@@ -948,7 +1181,8 @@ export default function LogbookPage() {
             <Text className={classes.title}>训练历史</Text>
           </Group>
 
-          <div className={classes.tableContainer}>
+          <Box className={classes.tableContainer} style={{ position: 'relative' }}>
+            <LoadingOverlay visible={loading} zIndex={5} />
             <Table striped highlightOnHover withTableBorder withColumnBorders>
               <Table.Thead className={classes.thead}>
                 <Table.Tr>
@@ -986,7 +1220,10 @@ export default function LogbookPage() {
                                 aria-label="编辑"
                                 title="编辑"
                                 leftSection={<IconEdit size={14} />}
-                                onClick={() => navigate(`/logbook/${r.id}`)}
+                                onClick={() => {
+                                  setEditingRecord(r)
+                                  setEditDrawerOpened(true)
+                                }}
                               />
                               <DeleteRecordButton id={r.id} onDone={reload} iconOnly />
                             </>
@@ -997,7 +1234,10 @@ export default function LogbookPage() {
                                 radius="xl"
                                 variant="light"
                                 leftSection={<IconEdit size={14} />}
-                                onClick={() => navigate(`/logbook/${r.id}`)}
+                                onClick={() => {
+                                  setEditingRecord(r)
+                                  setEditDrawerOpened(true)
+                                }}
                               >
                                 编辑
                               </Button>
@@ -1011,7 +1251,7 @@ export default function LogbookPage() {
                 )}
               </Table.Tbody>
             </Table>
-          </div>
+          </Box>
 
           <Group justify="space-between" mt="md" className={classes.pagination}>
             <Group gap="xs">
@@ -1045,6 +1285,347 @@ export default function LogbookPage() {
           </Group>
         </Stack>
       </Card>
+
+      <Drawer
+        opened={editDrawerOpened}
+        onClose={() => {
+          if (!updating) {
+            closeEditDrawer()
+          }
+        }}
+        title={editingRecord ? `编辑${getTypeLabel(editingRecord.type)}训练` : '编辑训练记录'}
+        padding={0}
+        size={isTablet ? '100%' : 'md'}
+        position={isTablet ? 'bottom' : 'right'}
+        closeOnClickOutside={!updating}
+        closeOnEscape={!updating}
+        keepMounted={false}
+        classNames={{
+          content: classes.drawerContent,
+          header: classes.drawerHeader,
+          body: classes.drawerBody,
+          title: classes.drawerTitle,
+          close: classes.drawerClose,
+        }}
+      >
+        <Box className={classes.drawerInnerBox}>
+          <LoadingOverlay
+            visible={updating}
+            zIndex={1000}
+            overlayProps={{ radius: 'lg', blur: 3, color: 'var(--mantine-color-blue-0)' }}
+            loaderProps={{ color: 'var(--mantine-color-blue-6)' }}
+          />
+          {editingRecord ? (
+            <Stack gap="xl" component="form" onSubmit={onEditSubmit} className={classes.drawerForm}>
+              <Stack gap="sm" className={classes.drawerSection}>
+                <Text className={classes.drawerSectionTitle}>基础信息</Text>
+                {/* <Text className={classes.drawerSectionSubtitle}>
+                  确认训练日期，保持记录准确无误。
+                </Text> */}
+                <Controller
+                  control={editControl}
+                  name="date"
+                  rules={{ required: '请选择日期' }}
+                  render={({ field, fieldState }) => (
+                    <DatePickerInput
+                      label="训练日期"
+                      placeholder="选择日期"
+                      size="sm"
+                      radius="md"
+                      value={field.value}
+                      onChange={field.onChange}
+                      valueFormat="YYYY-MM-DD"
+                      locale="en"
+                      firstDayOfWeek={1}
+                      monthLabelFormat="MMMM YYYY"
+                      popoverProps={{ withinPortal: true }}
+                      error={fieldState.error?.message}
+                      classNames={{
+                        label: classes.drawerFieldLabel,
+                        input: classes.drawerInput,
+                      }}
+                      presets={[
+                        {
+                          value: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                          label: 'Yesterday',
+                        },
+                        { value: dayjs().format('YYYY-MM-DD'), label: 'Today' },
+                        { value: dayjs().add(1, 'day').format('YYYY-MM-DD'), label: 'Tomorrow' },
+                        {
+                          value: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                          label: 'Next month',
+                        },
+                        { value: dayjs().add(1, 'year').format('YYYY-MM-DD'), label: 'Next year' },
+                        {
+                          value: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                          label: 'Last month',
+                        },
+                        {
+                          value: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+                          label: 'Last year',
+                        },
+                      ]}
+                    />
+                  )}
+                />
+              </Stack>
+
+              {editType === 'strength' && (
+                <Stack gap="sm" className={classes.drawerSection}>
+                  <Text className={classes.drawerSectionTitle}>力量项目</Text>
+                  <Text className={classes.drawerSectionSubtitle}>
+                    保持组次信息整洁，便于对比历史训练。
+                  </Text>
+                  {editStrengthFields.map((field, idx) => (
+                    <Stack key={field.key} gap="md" className={classes.drawerItemCard}>
+                      <Text className={classes.drawerItemTitle}>训练项 {idx + 1}</Text>
+                      <TextInput
+                        label="项目名称"
+                        placeholder="卧推 / 深蹲 / 硬拉等"
+                        size="sm"
+                        radius="md"
+                        classNames={{
+                          label: classes.drawerFieldLabel,
+                          input: classes.drawerInput,
+                        }}
+                        {...editRegister(`strengthItems.${idx}.name` as const)}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`strengthItems.${idx}.sets`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="组数"
+                            min={1}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 1}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`strengthItems.${idx}.reps`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="次数"
+                            min={1}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 1}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`strengthItems.${idx}.weight`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="重量 (kg)"
+                            min={0}
+                            step={2.5}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 0}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  ))}
+                </Stack>
+              )}
+
+              {editType === 'cardio' && (
+                <Stack gap="sm" className={classes.drawerSection}>
+                  <Text className={classes.drawerSectionTitle}>有氧项目</Text>
+                  <Text className={classes.drawerSectionSubtitle}>
+                    记录每一次心肺训练，关注距离与时间。
+                  </Text>
+                  {editCardioFields.map((field, idx) => (
+                    <Stack key={field.key} gap="md" className={classes.drawerItemCard}>
+                      <Text className={classes.drawerItemTitle}>训练项 {idx + 1}</Text>
+                      <TextInput
+                        label="项目名称"
+                        placeholder="跑步 / 骑行 / 游泳等"
+                        size="sm"
+                        radius="md"
+                        classNames={{
+                          label: classes.drawerFieldLabel,
+                          input: classes.drawerInput,
+                        }}
+                        {...editRegister(`cardioItems.${idx}.activity` as const)}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`cardioItems.${idx}.durationMinutes`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="时长 (分钟)"
+                            min={1}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 1}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`cardioItems.${idx}.distanceKm`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="距离 (km)"
+                            min={0}
+                            step={0.5}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 0}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  ))}
+                </Stack>
+              )}
+
+              {editType === 'functional' && (
+                <Stack gap="sm" className={classes.drawerSection}>
+                  <Text className={classes.drawerSectionTitle}>功能性训练</Text>
+                  <Text className={classes.drawerSectionSubtitle}>
+                    聚焦灵活性与爆发力，保持动作标准。
+                  </Text>
+                  {editFunctionalFields.map((field, idx) => (
+                    <Stack key={field.key} gap="md" className={classes.drawerItemCard}>
+                      <Text className={classes.drawerItemTitle}>训练项 {idx + 1}</Text>
+                      <TextInput
+                        label="项目名称"
+                        placeholder="核心 / 平衡 / 爆发等"
+                        size="sm"
+                        radius="md"
+                        classNames={{
+                          label: classes.drawerFieldLabel,
+                          input: classes.drawerInput,
+                        }}
+                        {...editRegister(`functionalItems.${idx}.activity` as const)}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`functionalItems.${idx}.durationMinutes`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="时长 (分钟)"
+                            min={1}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 1}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  ))}
+                </Stack>
+              )}
+
+              {editType === 'flexibility' && (
+                <Stack gap="sm" className={classes.drawerSection}>
+                  <Text className={classes.drawerSectionTitle}>柔韧性训练</Text>
+                  <Text className={classes.drawerSectionSubtitle}>
+                    循序渐进地提升柔韧，关注每次拉伸时长。
+                  </Text>
+                  {editFlexibilityFields.map((field, idx) => (
+                    <Stack key={field.key} gap="md" className={classes.drawerItemCard}>
+                      <Text className={classes.drawerItemTitle}>训练项 {idx + 1}</Text>
+                      <TextInput
+                        label="项目名称"
+                        placeholder="静态拉伸 / 动态拉伸 / 瑜伽等"
+                        size="sm"
+                        radius="md"
+                        classNames={{
+                          label: classes.drawerFieldLabel,
+                          input: classes.drawerInput,
+                        }}
+                        {...editRegister(`flexibilityItems.${idx}.activity` as const)}
+                      />
+                      <Controller
+                        control={editControl}
+                        name={`flexibilityItems.${idx}.durationMinutes`}
+                        render={({ field }) => (
+                          <NumberInput
+                            label="时长 (分钟)"
+                            min={1}
+                            size="sm"
+                            radius="md"
+                            classNames={{
+                              label: classes.drawerFieldLabel,
+                              input: classes.drawerInput,
+                            }}
+                            value={field.value ?? 1}
+                            onChange={(v) => field.onChange(typeof v === 'number' ? v : 0)}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  ))}
+                </Stack>
+              )}
+
+              <Group justify="space-between" align="center" className={classes.drawerActions}>
+                <Text size="sm" className={classes.drawerHint}>
+                  温馨提示：保持真实记录，才能更好地追踪训练进度。
+                </Text>
+                <Group gap="sm">
+                  <Button
+                    variant="subtle"
+                    color="blue"
+                    onClick={closeEditDrawer}
+                    type="button"
+                    disabled={updating}
+                    radius="md"
+                  >
+                    取消
+                  </Button>
+                  <Button type="submit" loading={updating} radius="md" color="blue">
+                    保存修改
+                  </Button>
+                </Group>
+              </Group>
+            </Stack>
+          ) : (
+            <Text c="dimmed" size="sm">
+              请选择要编辑的训练记录
+            </Text>
+          )}
+        </Box>
+      </Drawer>
 
       <Modal
         opened={modalOpened}

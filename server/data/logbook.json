@@ -6,7 +6,7 @@
     "cardioItems": [
       {
         "id": "wjcaywecrj",
-        "activity": "",
+        "activity": "123",
         "durationMinutes": 30,
         "distanceKm": 5
       }
