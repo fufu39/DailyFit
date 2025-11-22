@@ -1,0 +1,5 @@
+# .husky/pre-commit
+# 确保在提交前运行格式化和 Lint 检查
+echo "正在执行 Husky 钩子..."
+pnpm run format
+pnpm run lint

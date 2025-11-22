@@ -61,7 +61,10 @@
   margin-top: 100px;
   margin-bottom: 60px;
   color: var(--mantine-color-black);
-  font-family: Microsoft YaHei, Heiti SC, sans-serif;
+  font-family:
+    Microsoft YaHei,
+    Heiti SC,
+    sans-serif;
 }
 
 /* 媒体查询 - 移动端响应式 */

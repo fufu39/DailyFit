@@ -343,7 +343,8 @@
 .inputWrapper :global(.mantine-Input-input:hover:not(:focus)),
 .inputWrapper :global(.mantine-PasswordInput-input:hover:not(:focus)),
 .inputWrapper :global(.mantine-TextInput-input:hover:not(:focus)),
-.inputWrapper :global(.mantine-PasswordInput-wrapper:hover .mantine-PasswordInput-input:not(:focus)),
+.inputWrapper
+  :global(.mantine-PasswordInput-wrapper:hover .mantine-PasswordInput-input:not(:focus)),
 .inputWrapper :global(.mantine-Input-wrapper:hover .mantine-Input-input:not(:focus)),
 .inputWrapper :global(.mantine-TextInput-wrapper:hover .mantine-TextInput-input:not(:focus)) {
   border-color: #ff8c42 !important;
