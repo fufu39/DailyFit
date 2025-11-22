@@ -1,13 +1,13 @@
 # .github/workflows/deploy.yml
-# 这就是我们的 CI/CD 自动化脚本
+# 这就是 CI/CD 自动化脚本
 
-name: Deploy to Vercel Production
+name: 部署到Vercel生产环境
 
 # 触发条件：当 main 分支有 push 动作时
 on:
   push:
     branches:
-      - main  # 确保你的主分支叫 main，如果叫 master 请修改
+      - main
 
 # 环境变量：引用 GitHub Secrets
 env:
@@ -19,39 +19,51 @@ jobs:
     runs-on: ubuntu-latest # 使用 Ubuntu 虚拟机
     steps:
       # 步骤1: 检出代码
-      - name: Checkout
+      - name: 检出代码
         uses: actions/checkout@v4
 
       # 步骤2: 安装 pnpm
       # 你的项目使用 pnpm，我们必须先把它安装好
-      - name: Setup pnpm
+      - name: 设置 pnpm 环境
         uses: pnpm/action-setup@v3
         with:
           version: 10
 
       # 步骤3: 设置 Node.js
-      - name: Setup Node.js
+      - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm' # 启用 pnpm 缓存，加速安装
 
       # 步骤4: 安装依赖
-      - name: Install Dependencies
+      - name: 安装项目依赖
         run: pnpm install
 
-      # 步骤5: 安装 Vercel CLI
-      - name: Install Vercel CLI
+      # 步骤5: 执行代码风格/逻辑检查 (ESLint)
+      - name: 运行代码规范检查 (ESLint) 
+        run: pnpm run lint 
+        
+      # 步骤6: 执行代码格式检查（Prettier）
+      - name: 运行代码格式检查 (Prettier) 
+        run: pnpm run format:check 
+
+      # 步骤7: 执行单元测试和集成测试
+      # - name: 运行所有测试
+      #   run: pnpm run test:ci
+
+      # 步骤8: 安装 Vercel CLI
+      - name: 安装 Vercel 命令行工具
         run: pnpm install -g vercel@latest
 
-      # 步骤6: 拉取 Vercel 配置
-      - name: Pull Vercel Project Settings
+      # 步骤9: 拉取 Vercel 配置
+      - name: 拉取 Vercel 项目配置
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 步骤7: 构建项目
-      - name: Build Project
+      # 步骤10: 构建项目
+      - name: 执行项目构建
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 步骤8: 部署到生产环境
-      - name: Deploy Project to Production
+      # 步骤11: 部署到生产环境
+      - name: 部署项目至生产环境
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
